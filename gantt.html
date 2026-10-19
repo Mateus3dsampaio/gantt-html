@@ -32,6 +32,8 @@
   --accent-soft:  rgba(139,92,246,.18);
   --glow1: rgba(124,58,237,.28); --glow2: rgba(6,182,212,.18);
   --shadow: 0 10px 40px rgba(0,0,0,.35);
+  --hoje: #22e5ff; --hoje-glow: rgba(34,229,255,.65);
+  --lane: rgba(255,255,255,.035); --lane-alt: rgba(255,255,255,.015);
 
   --dx-card: rgba(255,255,255,.045); --dx-card-border: rgba(255,255,255,.09); --dx-shadow: 0 10px 40px rgba(0,0,0,.35);
   --dx-text: var(--text); --dx-muted: var(--text-muted); --dx-grid: rgba(255,255,255,.07);
@@ -60,6 +62,7 @@ body[data-tema="aurora"] {
   --accent-soft:  rgba(236,72,153,.18);
   --glow1: rgba(236,72,153,.25); --glow2: rgba(168,85,247,.22);
   --shadow: 0 10px 40px rgba(0,0,0,.4);
+  --hoje: #fde047; --hoje-glow: rgba(253,224,71,.65);
 
   --dx-card: rgba(255,255,255,.05); --dx-card-border: rgba(236,72,153,.18); --dx-shadow: 0 10px 40px rgba(0,0,0,.4);
   --dx-grid: rgba(255,255,255,.07);
@@ -209,49 +212,61 @@ body {
 .gantt-nav-group    { display: flex; align-items: center; gap: 10px; }
 .gantt-month-label  { font-size: 16px; font-weight: 600; min-width: 200px; text-align: center; }
 
-.gantt-legend { display: flex; gap: 18px; margin-bottom: 14px; flex-wrap: wrap; }
-.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
-.legend-dot   { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.gantt-legend { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.legend-item  { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 12px 4px 5px; }
+.legend-dot   { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
 
-.gantt-scroll { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
-.gantt-table  { width: 100%; border-collapse: collapse; }
+.gantt-scroll { position: relative; overflow-x: auto; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); padding: 6px 6px 4px; }
+.gantt-table  { width: 100%; border-collapse: separate; border-spacing: 10px 8px; }
+svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
 
 /* Cabeçalho de dias */
-.gantt-table thead tr th { background: var(--surface-alt); border-bottom: 1px solid var(--border); }
+.gantt-table thead tr th { background: transparent; border: none; }
 .gantt-label-cell {
   width: 170px; min-width: 170px;
   padding: 8px 14px;
-  border-right: 1px solid var(--border);
-  font-size: 12px; font-weight: 500; color: var(--text-muted);
-  white-space: nowrap; vertical-align: middle;
+  font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--text-faint);
+  white-space: nowrap; vertical-align: middle; text-align: left;
 }
 .gantt-days-cell { padding: 0; vertical-align: top; width: 100%; }
 
 .days-header-row { display: grid; height: 34px; }
 .day-num {
   display: flex; align-items: center; justify-content: center;
-  font-size: 10px; color: var(--text-faint);
-  border-right: 1px solid var(--border-light);
+  font-size: 11px; color: var(--text-faint);
+  border-radius: 8px;
   height: 100%;
 }
-.day-num:last-child { border-right: none; }
 .day-num.is-weekend { color: var(--text-ghost); background: var(--surface-alt); }
-.day-num.is-sunday  { color: #fb7185; background: rgba(244,63,94,.14); font-weight: 700; text-shadow: 0 0 6px rgba(244, 63, 94, 0.5); }
-.day-num.is-today   { color: #fb7185; font-weight: 700; background: var(--accent-soft); }
+.day-num.is-sunday  { color: #fb7185; background: rgba(244,63,94,.16); font-weight: 700; }
+.day-num.is-today   { color: #0a0e1f; font-weight: 800; background: var(--hoje); box-shadow: 0 0 14px var(--hoje-glow); text-shadow: none; }
 
 /* Linhas de equipes */
-.gantt-table tbody tr         { border-bottom: 1px solid var(--border-light); }
-.gantt-table tbody tr:last-child { border-bottom: none; }
 .equipe-label-cell {
   width: 170px; min-width: 170px;
-  padding: 0 14px;
-  border-right: 1px solid var(--border);
-  font-size: 13px; font-weight: 500;
+  padding: 0 12px;
+  font-size: 13px; font-weight: 600;
   white-space: nowrap; vertical-align: middle;
-  height: 48px;
+  height: 52px;
+  position: relative; overflow: hidden;
+  background: var(--lane); border: 1px solid var(--border-light); border-radius: 14px;
 }
-.bars-cell    { padding: 0; position: relative; }
-.bars-wrapper { position: relative; height: 48px; overflow: hidden; }
+.equipe-label-cell::before {
+  content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--cor, var(--accent-solid)); box-shadow: 0 0 12px var(--cor, transparent);
+}
+.eq-inner { display: flex; align-items: center; gap: 10px; }
+.eq-av {
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+  color: var(--cor, var(--text-2));
+  background: color-mix(in srgb, var(--cor, #888) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor, #888) 55%, transparent);
+}
+.bars-cell    { padding: 0; position: relative; background: var(--lane); border: 1px solid var(--border-light); border-radius: 14px; }
+.gantt-table tbody tr:nth-child(even) .equipe-label-cell,
+.gantt-table tbody tr:nth-child(even) .bars-cell { background: var(--lane-alt); }
+.bars-wrapper { position: relative; height: 50px; overflow: hidden; border-radius: 13px; }
 
 /* Grade de fundo */
 .bars-grid {
@@ -269,35 +284,33 @@ body {
 }
 .sunday-overlay-cell          { height: 100%; }
 .sunday-overlay-cell.is-sunday {
-  background: rgba(220, 60, 60, 0.28);
-  border-left: 2px solid rgba(220, 60, 60, 0.7);
-  border-right: 2px solid rgba(220, 60, 60, 0.7);
+  background: repeating-linear-gradient(135deg, rgba(244,63,94,.24) 0 5px, rgba(244,63,94,.08) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(244,63,94,.42), inset -1px 0 0 rgba(244,63,94,.42);
 }
 
 /* Linha do dia de hoje */
-.today-line {
-  position: absolute; top: 0; bottom: 0;
-  width: 2px; background: #e74c3c;
-  opacity: 0.85; z-index: 25; pointer-events: none;
+.today-line { display: none; }
+.gantt-hoje-linha {
+  position: absolute; width: 3px; margin-left: -1.5px; border-radius: 3px; z-index: 30; pointer-events: none;
+  background: var(--hoje);
+  box-shadow: 0 0 0 1px rgba(10,14,31,.55), 0 0 10px var(--hoje-glow), 0 0 22px var(--hoje-glow);
 }
 
 /* Blocos de agendamento */
 .gantt-block {
   position: absolute; z-index: 3;
-  top: 7px; height: 34px;
-  display: flex; align-items: center;
-  padding: 0 8px; font-size: 11px; font-weight: 500;
+  top: 8px; height: 34px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px; font-size: 11.5px; font-weight: 600;
   color: #fff; cursor: pointer;
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  overflow: hidden; white-space: nowrap;
   transition: filter 0.12s, opacity 0.12s;
   min-width: 4px;
 }
+.gantt-block-ic  { font-size: 13px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.gantt-block-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .gantt-block:hover { filter: brightness(1.12); z-index: 10; }
-.gantt-block { box-shadow: 0 3px 10px rgba(0,0,0,.35); }
-.gantt-block::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 60%);
-}
+
 
 /* ══════════════════════════════
    TABELAS DE DADOS
@@ -830,13 +843,13 @@ body {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 8px;
+  width: 16px;
   z-index: 6;
   opacity: 0;
   transition: opacity 0.15s;
 }
-.gantt-resize-left  { left: 0;  cursor: w-resize; }
-.gantt-resize-right { right: 0; cursor: e-resize; }
+.gantt-resize-left  { left: 0;  cursor: col-resize; }
+.gantt-resize-right { right: 0; cursor: col-resize; }
 .gantt-block:hover .gantt-resize-handle { opacity: 1; }
 .gantt-resize-handle::after {
   content: '';
@@ -844,13 +857,16 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 16px;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.7);
+  width: 5px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.22), 0 0 12px rgba(255,255,255,.7);
+  transition: height .12s;
 }
-.gantt-resize-left::after  { left: 2px; }
-.gantt-resize-right::after { right: 2px; }
+.gantt-resize-handle:hover::after { height: 24px; }
+.gantt-resize-left::after  { left: 5px; }
+.gantt-resize-right::after { right: 5px; }
 
 /* ══════════════════════════════
    GANTT DRAG AND DROP
@@ -865,8 +881,8 @@ body {
   z-index: 9999;
   pointer-events: none;
   height: 34px;
-  padding: 0 10px;
-  border-radius: 5px;
+  padding: 0 14px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   font-size: 11px;
@@ -895,9 +911,8 @@ body {
 }
 
 .sunday-overlay-cell.is-feriado {
-  background: rgba(168, 85, 247, 0.28);
-  border-left: 2px solid rgba(139, 92, 246, 0.7);
-  border-right: 2px solid rgba(139, 92, 246, 0.7);
+  background: repeating-linear-gradient(135deg, rgba(168,85,247,.30) 0 5px, rgba(168,85,247,.10) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(168,85,247,.52), inset -1px 0 0 rgba(168,85,247,.52);
 }
 
 .feriado-equipe-badge {
@@ -965,6 +980,16 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
 </head>
 <body>
 
+<!-- Ícones SVG (usados no Gantt) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></symbol>
+  <symbol id="i-hour" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 5 5 5 9s-5 4-5 9M17 3c0 5-5 5-5 9s5 4 5 9"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0 5 5l-9.2 9.2a2.1 2.1 0 0 1-3-3L16.5 8.5a4 4 0 0 0-2-2z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5h6v-1a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1zM9 11h6M9 15h4"/></symbol>
+</svg>
+
 <!-- ════════════════ SIDEBAR ════════════════ -->
 <nav id="sidebar">
   <div class="sidebar-brand">
@@ -1019,15 +1044,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         <button class="btn" onclick="window._changeMonth(1)">Próximo &#8594;</button>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()">&#128203; Cadastro Rápido</button>
+        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()"><svg class="i"><use href="#i-clip"/></svg> Cadastro Rápido</button>
       </div>
     </div>
 
     <div class="gantt-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Agendado</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>Em andamento</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Concluído</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#E55050"></div>Aguardando Assistência</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#378ADD"><svg class="i"><use href="#i-cal"/></svg></div>Agendado</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"><svg class="i"><use href="#i-hour"/></svg></div>Em andamento</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"><svg class="i"><use href="#i-check"/></svg></div>Concluído</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#E55050"><svg class="i"><use href="#i-wrench"/></svg></div>Aguardando Assistência</div>
     </div>
 
     <div class="gantt-scroll">
@@ -1092,7 +1117,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     <!-- Clientes -->
     <div id="tab-clientes" style="display:none">
       <div style="margin-bottom:14px;display:flex;gap:8px">
-        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()">&#128203; Cadastro Rápido</button>
+        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()"><svg class="i"><use href="#i-clip"/></svg> Cadastro Rápido</button>
       </div>
       <div class="table-card">
         <table class="data-table">
@@ -1889,10 +1914,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         const cutLeft = iniDate < mesInicio;
         const cutRight = fimDate > mesFim;
         const radius = [
-          cutLeft ? "0" : "5px",
-          cutRight ? "0" : "5px",
-          cutRight ? "0" : "5px",
-          cutLeft ? "0" : "5px"
+          cutLeft ? "0" : "999px",
+          cutRight ? "0" : "999px",
+          cutRight ? "0" : "999px",
+          cutLeft ? "0" : "999px"
         ].join(" ");
         const tip = encodeURIComponent(JSON.stringify({
           cliente: ag.cliente_nome,
@@ -1910,7 +1935,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           id: ag.id
         }));
         const isAssist = ag.tipo === "assistencia";
-        const label = `${isAssist ? "\u{1F527} " : ""}${ag.cliente_nome} \u2014 ${ag.ambiente_nome}`;
+        const label = `${_iconeStatus(ag.status, isAssist)}<span class="gantt-block-txt">${ag.cliente_nome} \u2014 ${ag.ambiente_nome}</span>`;
         const assistStyle = isAssist ? "border:2px dashed rgba(255,255,255,0.7);" : "";
         let maskStyle = "";
         const gapStops = [];
@@ -1935,7 +1960,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         }
         blocosHtml += `
         <div class="gantt-block${isAssist ? " gantt-block-assistencia" : ""}"
-          style="left:${leftPct}%;width:${widthPct}%;background:${cor};border-radius:${radius};${assistStyle}${maskStyle}"
+          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}${maskStyle}"
           data-tip="${tip}"
           data-ag-id="${ag.id}"
           onmouseenter="window._ganttTooltip.mostrar(event,this)"
@@ -1956,7 +1981,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       const linhaHoje = todayPct !== null ? `<div class="today-line" style="left:${todayPct}%"></div>` : "";
       tbodyHtml += `
       <tr data-equipe-id="${eq.id}">
-        <td class="equipe-label-cell">${eq.nome}</td>
+        <td class="equipe-label-cell" style="--cor:${eq.cor}"><div class="eq-inner"><span class="eq-av"><svg class="i"><use href="#i-user"/></svg></span>${eq.nome}</div></td>
         <td class="bars-cell">
           <div class="bars-wrapper">
             <div class="bars-grid" style="grid-template-columns:repeat(${N},1fr)">${gridCells}</div>
@@ -1969,6 +1994,68 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     }
     document.getElementById("gantt-tbody").innerHTML = tbodyHtml;
     window._abrirEditarAgendamento = abrirModalEditarAgendamento;
+    _posicionarLinhaHoje(mesAtual ? hoje.getDate() : null, N);
+  }
+  function _mixHex(hex, alvo, p) {
+    const n = parseInt(hex.replace("#", "").slice(0, 6), 16);
+    const c = [n >> 16 & 255, n >> 8 & 255, n & 255];
+    return "#" + c.map((v, i) => Math.round(v + (alvo[i] - v) * p).toString(16).padStart(2, "0")).join("");
+  }
+  function _degrade(cor) {
+    if (!/^#[0-9a-fA-F]{6}$/.test(cor)) return cor;
+    return `linear-gradient(90deg,${_mixHex(cor, [0, 0, 0], 0.16)},${_mixHex(cor, [255, 255, 255], 0.12)})`;
+  }
+  var _ICONE_STATUS = {
+    "Agendado": "i-cal",
+    "Em andamento": "i-hour",
+    "Conclu\xEDdo": "i-check",
+    "Aguardando Assist\xEAncia": "i-wrench"
+  };
+  function _iconeStatus(status, isAssist) {
+    const id = isAssist ? "i-wrench" : _ICONE_STATUS[status] || "i-cal";
+    return `<svg class="i gantt-block-ic"><use href="#${id}"/></svg>`;
+  }
+  var _hojeObs = null;
+  var _hojeDia = null;
+  var _hojeN = 0;
+  function _posicionarLinhaHoje(dia, N) {
+    _hojeDia = dia;
+    _hojeN = N;
+    const scroll = document.querySelector(".gantt-scroll");
+    if (!scroll) return;
+    let linha = document.getElementById("gantt-hoje-linha");
+    if (dia === null) {
+      if (linha) linha.remove();
+      return;
+    }
+    if (!linha) {
+      linha = document.createElement("div");
+      linha.id = "gantt-hoje-linha";
+      linha.className = "gantt-hoje-linha";
+      scroll.appendChild(linha);
+    }
+    const wrappers = scroll.querySelectorAll(".bars-wrapper");
+    const header = scroll.querySelector(".days-header-row");
+    if (!wrappers.length || !header) {
+      linha.style.display = "none";
+      return;
+    }
+    const sr = scroll.getBoundingClientRect();
+    const wr = wrappers[0].getBoundingClientRect();
+    const hr = header.getBoundingClientRect();
+    const ultimo = wrappers[wrappers.length - 1].getBoundingClientRect();
+    if (!wr.width) {
+      linha.style.display = "none";
+      return;
+    }
+    linha.style.display = "";
+    linha.style.left = wr.left - sr.left + scroll.scrollLeft + wr.width * ((dia - 0.5) / N) + "px";
+    linha.style.top = hr.bottom - sr.top + scroll.scrollTop + 4 + "px";
+    linha.style.height = Math.max(0, ultimo.bottom - hr.bottom - 4) + "px";
+    if (!_hojeObs && "ResizeObserver" in window) {
+      _hojeObs = new ResizeObserver(() => _posicionarLinhaHoje(_hojeDia, _hojeN));
+      _hojeObs.observe(scroll);
+    }
   }
   var _drag = null;
   function _getTr(el) {

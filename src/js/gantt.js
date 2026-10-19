@@ -177,10 +177,10 @@ export function renderGantt() {
       const cutLeft  = iniDate < mesInicio;
       const cutRight = fimDate > mesFim;
       const radius   = [
-        cutLeft  ? '0' : '5px',
-        cutRight ? '0' : '5px',
-        cutRight ? '0' : '5px',
-        cutLeft  ? '0' : '5px',
+        cutLeft  ? '0' : '999px',
+        cutRight ? '0' : '999px',
+        cutRight ? '0' : '999px',
+        cutLeft  ? '0' : '999px',
       ].join(' ');
 
       const tip = encodeURIComponent(JSON.stringify({
@@ -200,7 +200,7 @@ export function renderGantt() {
       }));
 
       const isAssist = ag.tipo === 'assistencia';
-      const label = `${isAssist ? '🔧 ' : ''}${ag.cliente_nome} — ${ag.ambiente_nome}`;
+      const label = `${_iconeStatus(ag.status, isAssist)}<span class="gantt-block-txt">${ag.cliente_nome} — ${ag.ambiente_nome}</span>`;
 
       const assistStyle = isAssist ? 'border:2px dashed rgba(255,255,255,0.7);' : '';
 
@@ -229,7 +229,7 @@ export function renderGantt() {
 
       blocosHtml += `
         <div class="gantt-block${isAssist ? ' gantt-block-assistencia' : ''}"
-          style="left:${leftPct}%;width:${widthPct}%;background:${cor};border-radius:${radius};${assistStyle}${maskStyle}"
+          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}${maskStyle}"
           data-tip="${tip}"
           data-ag-id="${ag.id}"
           onmouseenter="window._ganttTooltip.mostrar(event,this)"
@@ -254,7 +254,7 @@ export function renderGantt() {
 
     tbodyHtml += `
       <tr data-equipe-id="${eq.id}">
-        <td class="equipe-label-cell">${eq.nome}</td>
+        <td class="equipe-label-cell" style="--cor:${eq.cor}"><div class="eq-inner"><span class="eq-av"><svg class="i"><use href="#i-user"/></svg></span>${eq.nome}</div></td>
         <td class="bars-cell">
           <div class="bars-wrapper">
             <div class="bars-grid" style="grid-template-columns:repeat(${N},1fr)">${gridCells}</div>
@@ -270,6 +270,75 @@ export function renderGantt() {
 
   // Expõe função de edição para os handlers inline dos blocos
   window._abrirEditarAgendamento = abrirModalEditarAgendamento;
+
+  _posicionarLinhaHoje(mesAtual ? hoje.getDate() : null, N);
+}
+
+// ── Visual: degradê das barras, ícones de status e linha de hoje ──
+function _mixHex(hex, alvo, p) {
+  const n = parseInt(hex.replace('#', '').slice(0, 6), 16);
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return '#' + c.map((v, i) => Math.round(v + (alvo[i] - v) * p).toString(16).padStart(2, '0')).join('');
+}
+
+/** Degradê horizontal leve: um tom mais escuro → um pouco mais claro, a partir da cor do status. */
+function _degrade(cor) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(cor)) return cor;
+  return `linear-gradient(90deg,${_mixHex(cor, [0, 0, 0], 0.16)},${_mixHex(cor, [255, 255, 255], 0.12)})`;
+}
+
+const _ICONE_STATUS = {
+  'Agendado':               'i-cal',
+  'Em andamento':           'i-hour',
+  'Concluído':              'i-check',
+  'Aguardando Assistência': 'i-wrench',
+};
+function _iconeStatus(status, isAssist) {
+  const id = isAssist ? 'i-wrench' : (_ICONE_STATUS[status] || 'i-cal');
+  return `<svg class="i gantt-block-ic"><use href="#${id}"/></svg>`;
+}
+
+let _hojeObs = null;
+let _hojeDia = null;
+let _hojeN   = 0;
+
+/** Uma única linha vertical contínua para o dia de hoje, por cima das barras de todas as equipes. */
+function _posicionarLinhaHoje(dia, N) {
+  _hojeDia = dia;
+  _hojeN   = N;
+
+  const scroll = document.querySelector('.gantt-scroll');
+  if (!scroll) return;
+  let linha = document.getElementById('gantt-hoje-linha');
+
+  if (dia === null) { if (linha) linha.remove(); return; }
+  if (!linha) {
+    linha = document.createElement('div');
+    linha.id = 'gantt-hoje-linha';
+    linha.className = 'gantt-hoje-linha';
+    scroll.appendChild(linha);
+  }
+
+  const wrappers = scroll.querySelectorAll('.bars-wrapper');
+  const header   = scroll.querySelector('.days-header-row');
+  if (!wrappers.length || !header) { linha.style.display = 'none'; return; }
+
+  const sr = scroll.getBoundingClientRect();
+  const wr = wrappers[0].getBoundingClientRect();
+  const hr = header.getBoundingClientRect();
+  const ultimo = wrappers[wrappers.length - 1].getBoundingClientRect();
+  if (!wr.width) { linha.style.display = 'none'; return; }   // aba oculta: reposiciona quando aparecer
+
+  linha.style.display = '';
+  linha.style.left   = (wr.left - sr.left + scroll.scrollLeft + wr.width * ((dia - 0.5) / N)) + 'px';
+  linha.style.top    = (hr.bottom - sr.top + scroll.scrollTop + 4) + 'px';
+  linha.style.height = Math.max(0, ultimo.bottom - hr.bottom - 4) + 'px';
+
+  // Reposiciona ao redimensionar a janela ou quando a aba do Gantt voltar a ficar visível
+  if (!_hojeObs && 'ResizeObserver' in window) {
+    _hojeObs = new ResizeObserver(() => _posicionarLinhaHoje(_hojeDia, _hojeN));
+    _hojeObs.observe(scroll);
+  }
 }
 
 // ── Drag-and-drop ─────────────────────────────────────────────────

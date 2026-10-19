@@ -26,6 +26,8 @@
   --accent-soft:  rgba(139,92,246,.18);
   --glow1: rgba(124,58,237,.28); --glow2: rgba(6,182,212,.18);
   --shadow: 0 10px 40px rgba(0,0,0,.35);
+  --hoje: #22e5ff; --hoje-glow: rgba(34,229,255,.65);
+  --lane: rgba(255,255,255,.035); --lane-alt: rgba(255,255,255,.015);
 
   --dx-card: rgba(255,255,255,.045); --dx-card-border: rgba(255,255,255,.09); --dx-shadow: 0 10px 40px rgba(0,0,0,.35);
   --dx-text: var(--text); --dx-muted: var(--text-muted); --dx-grid: rgba(255,255,255,.07);
@@ -54,6 +56,7 @@ body[data-tema="aurora"] {
   --accent-soft:  rgba(236,72,153,.18);
   --glow1: rgba(236,72,153,.25); --glow2: rgba(168,85,247,.22);
   --shadow: 0 10px 40px rgba(0,0,0,.4);
+  --hoje: #fde047; --hoje-glow: rgba(253,224,71,.65);
 
   --dx-card: rgba(255,255,255,.05); --dx-card-border: rgba(236,72,153,.18); --dx-shadow: 0 10px 40px rgba(0,0,0,.4);
   --dx-grid: rgba(255,255,255,.07);
@@ -203,49 +206,61 @@ body {
 .gantt-nav-group    { display: flex; align-items: center; gap: 10px; }
 .gantt-month-label  { font-size: 16px; font-weight: 600; min-width: 200px; text-align: center; }
 
-.gantt-legend { display: flex; gap: 18px; margin-bottom: 14px; flex-wrap: wrap; }
-.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
-.legend-dot   { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.gantt-legend { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.legend-item  { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 12px 4px 5px; }
+.legend-dot   { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
 
-.gantt-scroll { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
-.gantt-table  { width: 100%; border-collapse: collapse; }
+.gantt-scroll { position: relative; overflow-x: auto; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); padding: 6px 6px 4px; }
+.gantt-table  { width: 100%; border-collapse: separate; border-spacing: 10px 8px; }
+svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
 
 /* Cabeçalho de dias */
-.gantt-table thead tr th { background: var(--surface-alt); border-bottom: 1px solid var(--border); }
+.gantt-table thead tr th { background: transparent; border: none; }
 .gantt-label-cell {
   width: 170px; min-width: 170px;
   padding: 8px 14px;
-  border-right: 1px solid var(--border);
-  font-size: 12px; font-weight: 500; color: var(--text-muted);
-  white-space: nowrap; vertical-align: middle;
+  font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--text-faint);
+  white-space: nowrap; vertical-align: middle; text-align: left;
 }
 .gantt-days-cell { padding: 0; vertical-align: top; width: 100%; }
 
 .days-header-row { display: grid; height: 34px; }
 .day-num {
   display: flex; align-items: center; justify-content: center;
-  font-size: 10px; color: var(--text-faint);
-  border-right: 1px solid var(--border-light);
+  font-size: 11px; color: var(--text-faint);
+  border-radius: 8px;
   height: 100%;
 }
-.day-num:last-child { border-right: none; }
 .day-num.is-weekend { color: var(--text-ghost); background: var(--surface-alt); }
-.day-num.is-sunday  { color: #fb7185; background: rgba(244,63,94,.14); font-weight: 700; text-shadow: 0 0 6px rgba(244, 63, 94, 0.5); }
-.day-num.is-today   { color: #fb7185; font-weight: 700; background: var(--accent-soft); }
+.day-num.is-sunday  { color: #fb7185; background: rgba(244,63,94,.16); font-weight: 700; }
+.day-num.is-today   { color: #0a0e1f; font-weight: 800; background: var(--hoje); box-shadow: 0 0 14px var(--hoje-glow); text-shadow: none; }
 
 /* Linhas de equipes */
-.gantt-table tbody tr         { border-bottom: 1px solid var(--border-light); }
-.gantt-table tbody tr:last-child { border-bottom: none; }
 .equipe-label-cell {
   width: 170px; min-width: 170px;
-  padding: 0 14px;
-  border-right: 1px solid var(--border);
-  font-size: 13px; font-weight: 500;
+  padding: 0 12px;
+  font-size: 13px; font-weight: 600;
   white-space: nowrap; vertical-align: middle;
-  height: 48px;
+  height: 52px;
+  position: relative; overflow: hidden;
+  background: var(--lane); border: 1px solid var(--border-light); border-radius: 14px;
 }
-.bars-cell    { padding: 0; position: relative; }
-.bars-wrapper { position: relative; height: 48px; overflow: hidden; }
+.equipe-label-cell::before {
+  content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--cor, var(--accent-solid)); box-shadow: 0 0 12px var(--cor, transparent);
+}
+.eq-inner { display: flex; align-items: center; gap: 10px; }
+.eq-av {
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+  color: var(--cor, var(--text-2));
+  background: color-mix(in srgb, var(--cor, #888) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor, #888) 55%, transparent);
+}
+.bars-cell    { padding: 0; position: relative; background: var(--lane); border: 1px solid var(--border-light); border-radius: 14px; }
+.gantt-table tbody tr:nth-child(even) .equipe-label-cell,
+.gantt-table tbody tr:nth-child(even) .bars-cell { background: var(--lane-alt); }
+.bars-wrapper { position: relative; height: 50px; overflow: hidden; border-radius: 13px; }
 
 /* Grade de fundo */
 .bars-grid {
@@ -263,35 +278,33 @@ body {
 }
 .sunday-overlay-cell          { height: 100%; }
 .sunday-overlay-cell.is-sunday {
-  background: rgba(220, 60, 60, 0.28);
-  border-left: 2px solid rgba(220, 60, 60, 0.7);
-  border-right: 2px solid rgba(220, 60, 60, 0.7);
+  background: repeating-linear-gradient(135deg, rgba(244,63,94,.24) 0 5px, rgba(244,63,94,.08) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(244,63,94,.42), inset -1px 0 0 rgba(244,63,94,.42);
 }
 
 /* Linha do dia de hoje */
-.today-line {
-  position: absolute; top: 0; bottom: 0;
-  width: 2px; background: #e74c3c;
-  opacity: 0.85; z-index: 25; pointer-events: none;
+.today-line { display: none; }
+.gantt-hoje-linha {
+  position: absolute; width: 3px; margin-left: -1.5px; border-radius: 3px; z-index: 30; pointer-events: none;
+  background: var(--hoje);
+  box-shadow: 0 0 0 1px rgba(10,14,31,.55), 0 0 10px var(--hoje-glow), 0 0 22px var(--hoje-glow);
 }
 
 /* Blocos de agendamento */
 .gantt-block {
   position: absolute; z-index: 3;
-  top: 7px; height: 34px;
-  display: flex; align-items: center;
-  padding: 0 8px; font-size: 11px; font-weight: 500;
+  top: 8px; height: 34px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px; font-size: 11.5px; font-weight: 600;
   color: #fff; cursor: pointer;
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  overflow: hidden; white-space: nowrap;
   transition: filter 0.12s, opacity 0.12s;
   min-width: 4px;
 }
+.gantt-block-ic  { font-size: 13px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.gantt-block-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .gantt-block:hover { filter: brightness(1.12); z-index: 10; }
-.gantt-block { box-shadow: 0 3px 10px rgba(0,0,0,.35); }
-.gantt-block::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 60%);
-}
+
 
 /* ══════════════════════════════
    TABELAS DE DADOS
@@ -824,13 +837,13 @@ body {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 8px;
+  width: 16px;
   z-index: 6;
   opacity: 0;
   transition: opacity 0.15s;
 }
-.gantt-resize-left  { left: 0;  cursor: w-resize; }
-.gantt-resize-right { right: 0; cursor: e-resize; }
+.gantt-resize-left  { left: 0;  cursor: col-resize; }
+.gantt-resize-right { right: 0; cursor: col-resize; }
 .gantt-block:hover .gantt-resize-handle { opacity: 1; }
 .gantt-resize-handle::after {
   content: '';
@@ -838,13 +851,16 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 16px;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.7);
+  width: 5px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.22), 0 0 12px rgba(255,255,255,.7);
+  transition: height .12s;
 }
-.gantt-resize-left::after  { left: 2px; }
-.gantt-resize-right::after { right: 2px; }
+.gantt-resize-handle:hover::after { height: 24px; }
+.gantt-resize-left::after  { left: 5px; }
+.gantt-resize-right::after { right: 5px; }
 
 /* ══════════════════════════════
    GANTT DRAG AND DROP
@@ -859,8 +875,8 @@ body {
   z-index: 9999;
   pointer-events: none;
   height: 34px;
-  padding: 0 10px;
-  border-radius: 5px;
+  padding: 0 14px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   font-size: 11px;
@@ -889,9 +905,8 @@ body {
 }
 
 .sunday-overlay-cell.is-feriado {
-  background: rgba(168, 85, 247, 0.28);
-  border-left: 2px solid rgba(139, 92, 246, 0.7);
-  border-right: 2px solid rgba(139, 92, 246, 0.7);
+  background: repeating-linear-gradient(135deg, rgba(168,85,247,.30) 0 5px, rgba(168,85,247,.10) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(168,85,247,.52), inset -1px 0 0 rgba(168,85,247,.52);
 }
 
 .feriado-equipe-badge {

@@ -6,6 +6,7 @@
  */
 
 import { jsonReq } from './utils.js';
+import { lerContrato } from './backend/contratos.js';
 
 // ── Equipes ───────────────────────────────────────────────────────
 export const API = {
@@ -52,5 +53,10 @@ export const API = {
     criarLote:     (dados)     => fetch('/api/ambientes/lote', jsonReq('POST', dados)),
     atualizar:     (id, dados) => fetch(`/api/ambientes/${id}`, jsonReq('PUT', dados)),
     excluir:       (id)        => fetch(`/api/ambientes/${id}`, { method: 'DELETE' }),
+  },
+
+  // Leitura local do PDF (sem servidor): devolve os dados ou lança Error com mensagem
+  contratos: {
+    importar: async (arquivo) => lerContrato(await arquivo.arrayBuffer()),
   },
 };

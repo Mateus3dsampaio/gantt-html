@@ -18,10 +18,11 @@ ARQUIVOS
 - dados.json   : os dados (fica sincronizado pelo OneDrive).
 - backups\     : guarde aqui os backups exportados.
 - src\         : código-fonte. Depois de alterar algo em src\, rode build.bat para gerar de novo o gantt.html.
-- vendor\      : biblioteca Chart.js (gráficos).
+- vendor\      : bibliotecas Chart.js (gráficos) e pdf.js (leitura de contratos em PDF).
 - build.js / build.bat : geram o gantt.html (precisa do Node.js instalado).
 
 ONDE FICA O QUÊ (src\js\backend\)
 - store.js    : armazenamento (dados.json, cópia no navegador, proteção contra conflito)
 - servicos.js : regras de datas e conflitos
 - rotas.js    : substitui o servidor (equipes, clientes, ambientes, agendamentos, feriados, dashboard, backup)
+- contratos.js: lê o contrato em PDF (Cadastro Rápido > "Importar contrato (PDF)") e extrai cliente, ambientes e valores

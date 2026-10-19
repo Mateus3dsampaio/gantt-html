@@ -5,6 +5,7 @@
  * (ou dê duplo clique em build.bat)
  *
  * Junta: src/index.html + src/css/main.css + src/js/** (empacotado) + vendor/chart.umd.min.js
+ *        + vendor/pdf.min.js e pdf.worker.min.js (leitura de contratos em PDF)
  */
 
 const fs   = require('fs');
@@ -30,6 +31,8 @@ const esc = (js) => js.replace(/<\/script/gi, '<\\/script');
 let html = ler('src/index.html');
 html = html.replace('/*__CSS__*/',     () => ler('src/css/main.css'));
 html = html.replace('/*__CHARTJS__*/', () => esc(ler('vendor/chart.umd.min.js')));
+html = html.replace('/*__PDFJS__*/',    () => esc(ler('vendor/pdf.min.js')));
+html = html.replace('/*__PDFWORKER__*/', () => esc(ler('vendor/pdf.worker.min.js')));
 html = html.replace('/*__APP__*/',      () => esc(app));
 
 fs.writeFileSync(path.join(raiz, 'gantt.html'), html, 'utf8');

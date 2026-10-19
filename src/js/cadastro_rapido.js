@@ -9,6 +9,7 @@ import { abrirModal, alertaModal, fecharModal } from './modal.js';
 import { esc } from './utils.js';
 
 let ambienteCount = 0;
+let _clienteExistenteId = null; // preenchido quando o contrato importado é de cliente já cadastrado
 
 function formatBRL(n) {
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -83,12 +84,58 @@ function _addAmbienteLine(container) {
   return row;
 }
 
+async function _importarContrato(arquivo) {
+  const alerta = document.getElementById('modal-alert');
+  alerta.innerHTML = '<div class="alert alert-success">Lendo contrato...</div>';
+
+  let dados;
+  try {
+    dados = await API.contratos.importar(arquivo);
+  } catch (e) {
+    return alertaModal(esc(e.message || 'Erro ao ler o contrato.'));
+  }
+
+  document.getElementById('cr-nome').value = dados.cliente.nome;
+  document.getElementById('cr-tel').value  = dados.cliente.telefone;
+  document.getElementById('cr-end').value  = dados.cliente.endereco;
+
+  // Cliente já cadastrado? Pergunta se os ambientes entram nele
+  _clienteExistenteId = null;
+  const nomeNorm = dados.cliente.nome.trim().toLowerCase();
+  const existente = (window._getEstado().clientes || [])
+    .find(c => (c.nome || '').trim().toLowerCase() === nomeNorm);
+  if (existente && confirm(`Já existe o cliente "${existente.nome}". Adicionar os ambientes do contrato a ele?`)) {
+    _clienteExistenteId = existente.id;
+  }
+
+  // Recria as linhas de ambiente com o que veio do contrato
+  const container = document.getElementById('cr-ambientes');
+  container.innerHTML = '';
+  ambienteCount = 0;
+  for (const amb of dados.ambientes) {
+    const row = _addAmbienteLine(container);
+    row.querySelector('.amb-nome').value = amb.nome;
+    const valorInput = row.querySelector('.amb-valor');
+    valorInput.value = formatBRL(amb.valor);
+    valorInput.dispatchEvent(new Event('blur')); // calcula os dias
+  }
+
+  alerta.innerHTML = dados.soma_confere
+    ? `<div class="alert alert-success">Contrato lido: ${dados.ambientes.length} ambiente(s), total ${formatBRL(dados.total)}. Confira antes de salvar.</div>`
+    : `<div class="alert alert-error">Atenção: a soma dos ambientes (${formatBRL(dados.soma)}) não bate com o total do contrato (${dados.total != null ? formatBRL(dados.total) : 'não encontrado'}). Confira os valores.</div>`;
+}
+
 export function abrirCadastroRapido() {
   ambienteCount = 0;
+  _clienteExistenteId = null;
 
   document.getElementById('modal-titulo').textContent = 'Cadastro Rápido';
   document.getElementById('modal-corpo').innerHTML = `
     <div id="modal-alert"></div>
+    <div style="margin-bottom:12px">
+      <button class="btn btn-sm" id="cr-importar" type="button">📄 Importar contrato (PDF)</button>
+      <input type="file" id="cr-arquivo" accept="application/pdf,.pdf" style="display:none">
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Nome do cliente</label>
@@ -131,6 +178,15 @@ export function abrirCadastroRapido() {
     row.querySelector('.amb-nome').focus();
   });
 
+  const inputArquivo = document.getElementById('cr-arquivo');
+  document.getElementById('cr-importar').addEventListener('click', () => inputArquivo.click());
+  inputArquivo.addEventListener('change', () => {
+    if (inputArquivo.files[0]) _importarContrato(inputArquivo.files[0]);
+    inputArquivo.value = '';
+  });
+  // Se o usuário trocar o nome depois de importar, deixa de ser o cliente existente
+  document.getElementById('cr-nome').addEventListener('input', () => { _clienteExistenteId = null; });
+
   abrirModal();
   setTimeout(() => document.getElementById('cr-nome').focus(), 80);
 }
@@ -156,12 +212,14 @@ async function salvarCadastroRapido() {
 
   if (!ambientes.length) return alertaModal('Adicione ao menos um ambiente.');
 
-  // 1. Criar cliente
-  const resCli = await API.clientes.criar({ nome, telefone: tel, endereco: end });
-  const dataCli = await resCli.json();
-  if (!resCli.ok) return alertaModal(dataCli.error);
-
-  const clienteId = dataCli.id;
+  // 1. Criar cliente (ou reaproveitar o existente escolhido na importação)
+  let clienteId = _clienteExistenteId;
+  if (!clienteId) {
+    const resCli = await API.clientes.criar({ nome, telefone: tel, endereco: end });
+    const dataCli = await resCli.json();
+    if (!resCli.ok) return alertaModal(dataCli.error);
+    clienteId = dataCli.id;
+  }
 
   // 2. Criar ambientes em lote
   const resAmb = await API.ambientes.criarLote({ cliente_id: clienteId, ambientes });

@@ -6,7 +6,7 @@
 import { API } from './api.js';
 import { recarregar } from './app.js';
 import { abrirModal, alertaModal, fecharModal } from './modal.js';
-import { esc } from './utils.js';
+import { esc, ratearProporcional } from './utils.js';
 
 let ambienteCount = 0;
 let _clienteExistenteId = null; // preenchido quando o contrato importado é de cliente já cadastrado
@@ -84,6 +84,26 @@ function _addAmbienteLine(container) {
   return row;
 }
 
+// Redistribui os valores dos ambientes para a soma fechar no valor líquido digitado
+function _aplicarLiquido() {
+  const campo = document.getElementById('cr-liquido');
+  const info  = document.getElementById('cr-liquido-info');
+  const liquido = parseBRL(campo.value);
+  if (liquido === null) { info.textContent = ''; return; }
+  campo.value = formatBRL(liquido);
+
+  const inputs  = [...document.querySelectorAll('#cr-ambientes .amb-valor')];
+  const valores = inputs.map(i => parseBRL(i.value));
+  const novos   = ratearProporcional(valores, liquido);
+  if (!novos) return alertaModal('Preencha os valores dos ambientes antes de informar o líquido.');
+
+  const bruto = valores.reduce((s, v) => s + (v > 0 ? v : 0), 0);
+  inputs.forEach((input, i) => { if (valores[i] > 0) input.value = formatBRL(novos[i]); });
+  const pct = ((1 - liquido / bruto) * 100).toFixed(1).replace('.', ',');
+  info.textContent = `Bruto ${formatBRL(bruto)} → ajuste de ${pct}% nos ambientes`;
+  document.getElementById('modal-alert').innerHTML = '';
+}
+
 async function _importarContrato(arquivo) {
   const alerta = document.getElementById('modal-alert');
   alerta.innerHTML = '<div class="alert alert-success">Lendo contrato...</div>';
@@ -112,6 +132,11 @@ async function _importarContrato(arquivo) {
   const container = document.getElementById('cr-ambientes');
   container.innerHTML = '';
   ambienteCount = 0;
+  document.getElementById('cr-liquido').value = '';
+  document.getElementById('cr-liquido-info').textContent = '';
+  // Bruto do contrato (para conferir com o PDF), mesmo que o líquido seja aplicado depois
+  document.getElementById('cr-bruto').textContent =
+    `Valor bruto do contrato: ${formatBRL(dados.total ?? dados.soma)}`;
   for (const amb of dados.ambientes) {
     const row = _addAmbienteLine(container);
     row.querySelector('.amb-nome').value = amb.nome;
@@ -170,6 +195,21 @@ export function abrirCadastroRapido() {
   `;
 
   const container = document.getElementById('cr-ambientes');
+  // Campo do valor líquido (acima dos títulos das colunas de ambientes)
+  container.previousElementSibling.insertAdjacentHTML('beforebegin', `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <label style="font-size:12px;font-weight:600;color:var(--text);margin:0">Valor líquido total (R$)</label>
+      <input type="text" id="cr-liquido" placeholder="Ex: 240.138,12" style="width:150px">
+      <span id="cr-liquido-info" style="font-size:11px;color:var(--text-muted)"></span>
+    </div>
+    <div id="cr-bruto" style="font-size:12px;font-weight:600;color:var(--text);margin:-4px 0 10px"></div>
+  `);
+  const campoLiquido = document.getElementById('cr-liquido');
+  campoLiquido.addEventListener('blur', _aplicarLiquido);
+  campoLiquido.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); _aplicarLiquido(); }
+  });
+
   // Começar com 1 linha vazia
   _addAmbienteLine(container);
 

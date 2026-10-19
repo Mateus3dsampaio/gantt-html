@@ -81,6 +81,29 @@ export function diaDaSemana(ano, mes, dia) {
   return new Date(ano, mes, dia).getDay();
 }
 
+// ── Rateio proporcional ───────────────────────────────────────────
+
+/**
+ * Redistribui `valores` na mesma proporção para que a soma seja exatamente `total`.
+ * Trabalha em centavos; a diferença de arredondamento vai para o maior valor.
+ * Posições null/0 são mantidas como estão. Retorna null se não houver base de cálculo.
+ */
+export function ratearProporcional(valores, total) {
+  const base = valores.reduce((s, v) => s + (v > 0 ? v : 0), 0);
+  if (!(base > 0) || !(total >= 0)) return null;
+
+  const alvo = Math.round(total * 100);
+  const centavos = valores.map(v => (v > 0 ? Math.round(v * alvo / base) : null));
+
+  const diff = alvo - centavos.reduce((s, c) => s + (c ?? 0), 0);
+  if (diff !== 0) {
+    let iMax = 0;
+    centavos.forEach((c, i) => { if ((c ?? -1) > (centavos[iMax] ?? -1)) iMax = i; });
+    centavos[iMax] += diff;
+  }
+  return centavos.map((c, i) => (c === null ? valores[i] : c / 100));
+}
+
 // ── Helper para requisições JSON ──────────────────────────────────
 export function jsonReq(method, body) {
   return {

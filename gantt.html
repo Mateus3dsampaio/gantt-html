@@ -1374,6 +1374,21 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   function diaDaSemana(ano, mes, dia) {
     return new Date(ano, mes, dia).getDay();
   }
+  function ratearProporcional(valores, total) {
+    const base = valores.reduce((s, v) => s + (v > 0 ? v : 0), 0);
+    if (!(base > 0) || !(total >= 0)) return null;
+    const alvo = Math.round(total * 100);
+    const centavos = valores.map((v) => v > 0 ? Math.round(v * alvo / base) : null);
+    const diff = alvo - centavos.reduce((s, c) => s + (c ?? 0), 0);
+    if (diff !== 0) {
+      let iMax = 0;
+      centavos.forEach((c, i) => {
+        if ((c ?? -1) > (centavos[iMax] ?? -1)) iMax = i;
+      });
+      centavos[iMax] += diff;
+    }
+    return centavos.map((c, i) => c === null ? valores[i] : c / 100);
+  }
   function jsonReq(method, body) {
     return {
       method,
@@ -2804,6 +2819,27 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     });
     return row;
   }
+  function _aplicarLiquido() {
+    const campo = document.getElementById("cr-liquido");
+    const info = document.getElementById("cr-liquido-info");
+    const liquido = parseBRL(campo.value);
+    if (liquido === null) {
+      info.textContent = "";
+      return;
+    }
+    campo.value = formatBRL(liquido);
+    const inputs = [...document.querySelectorAll("#cr-ambientes .amb-valor")];
+    const valores = inputs.map((i) => parseBRL(i.value));
+    const novos = ratearProporcional(valores, liquido);
+    if (!novos) return alertaModal("Preencha os valores dos ambientes antes de informar o l\xEDquido.");
+    const bruto = valores.reduce((s, v) => s + (v > 0 ? v : 0), 0);
+    inputs.forEach((input, i) => {
+      if (valores[i] > 0) input.value = formatBRL(novos[i]);
+    });
+    const pct = ((1 - liquido / bruto) * 100).toFixed(1).replace(".", ",");
+    info.textContent = `Bruto ${formatBRL(bruto)} \u2192 ajuste de ${pct}% nos ambientes`;
+    document.getElementById("modal-alert").innerHTML = "";
+  }
   async function _importarContrato(arquivo) {
     const alerta = document.getElementById("modal-alert");
     alerta.innerHTML = '<div class="alert alert-success">Lendo contrato...</div>';
@@ -2825,6 +2861,9 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     const container = document.getElementById("cr-ambientes");
     container.innerHTML = "";
     ambienteCount = 0;
+    document.getElementById("cr-liquido").value = "";
+    document.getElementById("cr-liquido-info").textContent = "";
+    document.getElementById("cr-bruto").textContent = `Valor bruto do contrato: ${formatBRL(dados.total ?? dados.soma)}`;
     for (const amb of dados.ambientes) {
       const row = _addAmbienteLine(container);
       row.querySelector(".amb-nome").value = amb.nome;
@@ -2876,6 +2915,22 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     <button class="btn btn-primary" onclick="window._cadastroRapido.salvar()">Salvar</button>
   `;
     const container = document.getElementById("cr-ambientes");
+    container.previousElementSibling.insertAdjacentHTML("beforebegin", `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <label style="font-size:12px;font-weight:600;color:var(--text);margin:0">Valor l\xEDquido total (R$)</label>
+      <input type="text" id="cr-liquido" placeholder="Ex: 240.138,12" style="width:150px">
+      <span id="cr-liquido-info" style="font-size:11px;color:var(--text-muted)"></span>
+    </div>
+    <div id="cr-bruto" style="font-size:12px;font-weight:600;color:var(--text);margin:-4px 0 10px"></div>
+  `);
+    const campoLiquido = document.getElementById("cr-liquido");
+    campoLiquido.addEventListener("blur", _aplicarLiquido);
+    campoLiquido.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        _aplicarLiquido();
+      }
+    });
     _addAmbienteLine(container);
     document.getElementById("cr-add-amb").addEventListener("click", () => {
       const row = _addAmbienteLine(container);

@@ -1,0 +1,4 @@
+﻿# Dados reais dos clientes e backups: não versionar
+dados.json
+backups/
+.app.bundle.js

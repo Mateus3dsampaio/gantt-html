@@ -1,0 +1,27 @@
+﻿AGENDA DE MONTAGEM — versão HTML (sem servidor)
+================================================
+
+COMO USAR
+1. Abra o arquivo gantt.html no Chrome ou no Edge (duplo clique).
+2. Na primeira vez, clique em "Abrir o arquivo dados.json" e escolha o dados.json desta pasta.
+   Nas próximas vezes pode aparecer o botão "Continuar": é só clicar (regra de segurança do navegador).
+3. Tudo o que for alterado é salvo automaticamente no dados.json (e numa cópia no navegador).
+
+REGRAS IMPORTANTES
+- Só uma pessoa por vez. Antes de abrir, espere o OneDrive terminar de sincronizar (ícone sem setinhas).
+- Se o dados.json for alterado em outro computador, o sistema NÃO sobrescreve: recarrega os dados do arquivo e avisa.
+- Faça backup com frequência: Configurações > Exportar backup. O sistema avisa na barra lateral quando o último backup passa de 7 dias.
+- Para restaurar: Configurações > Carregar backup.
+
+ARQUIVOS
+- gantt.html   : o sistema (arquivo único, funciona sem internet). É GERADO — não edite direto.
+- dados.json   : os dados (fica sincronizado pelo OneDrive).
+- backups\     : guarde aqui os backups exportados.
+- src\         : código-fonte. Depois de alterar algo em src\, rode build.bat para gerar de novo o gantt.html.
+- vendor\      : biblioteca Chart.js (gráficos).
+- build.js / build.bat : geram o gantt.html (precisa do Node.js instalado).
+
+ONDE FICA O QUÊ (src\js\backend\)
+- store.js    : armazenamento (dados.json, cópia no navegador, proteção contra conflito)
+- servicos.js : regras de datas e conflitos
+- rotas.js    : substitui o servidor (equipes, clientes, ambientes, agendamentos, feriados, dashboard, backup)

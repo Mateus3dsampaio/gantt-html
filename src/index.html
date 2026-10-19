@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Montagem</title>
+  <style>/*__CSS__*/</style>
+</head>
+<body>
+
+<!-- ════════════════ SIDEBAR ════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <h1>Agenda de Montagem</h1>
+    <p>Móveis Planejados</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item active" data-view="gantt">
+      <span class="nav-icon">📅</span> Gantt
+    </div>
+    <div class="nav-item" data-view="cadastro">
+      <span class="nav-icon">👥</span> Cadastro
+    </div>
+    <div class="nav-item" data-view="agendamentos">
+      <span class="nav-icon">📋</span> Agendamentos
+    </div>
+    <div class="nav-item" data-view="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" data-view="settings">
+      <span class="nav-icon">⚙️</span> Configurações
+    </div>
+  </div>
+
+  <div id="sidebar-resumo"></div>
+
+  <button class="theme-toggle" onclick="window._theme.toggle()">
+    <span class="theme-toggle-icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Modo escuro</span>
+  </button>
+</nav>
+
+<!-- ════════════════ CONTEÚDO PRINCIPAL ════════════════ -->
+<main id="main">
+
+  <!-- ── GANTT ── -->
+  <div id="view-gantt" class="view active">
+    <div id="modo-agendar-banner" style="display:none"></div>
+    <div id="pendentes-panel" class="pendentes-panel">
+      <div class="pendentes-header" onclick="window._pendentes.toggle()">
+        <span>&#128230; Ambientes não agendados</span>
+        <span id="pendentes-valor" class="pendentes-valor" style="display:none"></span>
+        <span id="pendentes-badge" class="pendentes-badge">0</span>
+      </div>
+      <div id="pendentes-corpo" class="pendentes-corpo"></div>
+    </div>
+
+    <div class="gantt-topbar">
+      <div class="gantt-nav-group">
+        <button class="btn" onclick="window._changeMonth(-1)">&#8592; Anterior</button>
+        <div class="gantt-month-label" id="gantt-month-label"></div>
+        <button class="btn" onclick="window._changeMonth(1)">Próximo &#8594;</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()">&#128203; Cadastro Rápido</button>
+      </div>
+    </div>
+
+    <div class="gantt-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Agendado</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>Em andamento</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Concluído</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#E55050"></div>Aguardando Assistência</div>
+    </div>
+
+    <div class="gantt-scroll">
+      <table class="gantt-table" id="gantt-table">
+        <thead id="gantt-thead"></thead>
+        <tbody id="gantt-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── CADASTRO ── -->
+  <div id="view-cadastro" class="view">
+    <div class="page-header">
+      <div class="page-title">Cadastro</div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="equipes">Equipes</button>
+      <button class="tab-btn"        data-tab="clientes">Clientes</button>
+      <button class="tab-btn"        data-tab="feriados">Feriados</button>
+    </div>
+
+    <!-- Equipes -->
+    <div id="tab-equipes">
+      <div style="margin-bottom:14px">
+        <button class="btn btn-primary" onclick="window._abrirModalEquipe()">+ Nova equipe</button>
+      </div>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Cor</th>
+              <th style="width:130px">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="equipes-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Feriados -->
+    <div id="tab-feriados" style="display:none">
+      <div style="margin-bottom:14px">
+        <button class="btn btn-primary" onclick="window._abrirModalFeriado()">+ Novo feriado</button>
+      </div>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:120px">Data</th>
+              <th>Nome</th>
+              <th>Equipes que trabalham</th>
+              <th style="width:130px">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="feriados-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Clientes -->
+    <div id="tab-clientes" style="display:none">
+      <div style="margin-bottom:14px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="window._cadastroRapido.abrir()">&#128203; Cadastro Rápido</button>
+      </div>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>Endereço</th>
+              <th style="width:130px">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="clientes-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AGENDAMENTOS ── -->
+  <div id="view-agendamentos" class="view">
+    <div class="page-header">
+      <div class="page-title">Agendamentos</div>
+      <button class="btn btn-primary" onclick="window._abrirModalAgendamento()">+ Novo agendamento</button>
+    </div>
+
+    <div class="filters-bar">
+      <select id="fil-equipe" onchange="window._renderAgendamentos()">
+        <option value="">Todas as equipes</option>
+      </select>
+      <select id="fil-status" onchange="window._renderAgendamentos()">
+        <option value="">Todos os status</option>
+        <option>Agendado</option>
+        <option>Em andamento</option>
+        <option>Concluído</option>
+        <option>Aguardando Assistência</option>
+      </select>
+      <input type="month" id="fil-mes" onchange="window._renderAgendamentos()" title="Filtrar por mês">
+    </div>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead></thead>
+        <tbody id="agendamentos-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div id="view-settings" class="view">
+    <div class="page-header">
+      <div class="page-title">Configurações</div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-title">Exportar backup</div>
+      <p class="settings-card-desc">Baixa um arquivo JSON com todos os dados: clientes, ambientes, agendamentos, equipes e feriados.</p>
+      <button class="btn btn-primary" id="btn-export">Exportar backup</button>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-title">Restaurar backup</div>
+      <p class="settings-card-desc" style="color:#A32D2D">Atenção: substitui <strong>todos</strong> os dados atuais pelo conteúdo do arquivo selecionado.</p>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+      <button class="btn btn-danger" id="btn-import">Carregar backup</button>
+      <div id="import-status" class="settings-status"></div>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="view-dashboard" class="view">
+    <div class="page-header">
+      <div class="page-title">Dashboard de Equipes</div>
+    </div>
+
+    <div class="dash-filters">
+      <label>Ano</label>
+      <select id="dash-ano"></select>
+      <label>De</label>
+      <select id="dash-mes-ini"></select>
+      <label>Até</label>
+      <select id="dash-mes-fim"></select>
+      <button class="btn btn-primary" onclick="window._dashboard.atualizar()">Aplicar</button>
+    </div>
+
+    <div id="dash-kpis" class="dash-kpis"></div>
+
+    <div class="dash-chart-card">
+      <h3 class="dash-chart-title">R$ Concluído por Mês</h3>
+      <div class="dash-chart-wrap"><canvas id="chart-mensal"></canvas></div>
+    </div>
+
+    <div class="dash-bottom">
+      <div class="dash-chart-card">
+        <h3 class="dash-chart-title">Acumulado no Período</h3>
+        <div class="dash-chart-wrap dash-chart-wrap--short"><canvas id="chart-acumulado"></canvas></div>
+      </div>
+      <div class="dash-chart-card">
+        <h3 class="dash-chart-title">Desempenho por Equipe</h3>
+        <div id="dash-tabela"></div>
+      </div>
+    </div>
+
+    <div class="dash-chart-card">
+      <h3 class="dash-chart-title">Evolução da Média Diária (R$/dia por mês)</h3>
+      <div class="dash-chart-wrap"><canvas id="chart-media-dia"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════════════ MODAL ════════════════ -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-head">
+      <h2 id="modal-titulo">—</h2>
+      <button class="modal-close" onclick="window._modal.fechar()">&#10005;</button>
+    </div>
+    <div class="modal-body" id="modal-corpo"></div>
+    <div class="modal-foot" id="modal-rodape"></div>
+  </div>
+</div>
+
+<!-- ════════════════ TOOLTIP ════════════════ -->
+<div id="tooltip"></div>
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<!-- Preenchido pelo build.js: Chart.js e o app (bundle) embutidos neste arquivo -->
+<script>/*__CHARTJS__*/</script>
+<script>/*__APP__*/</script>
+
+</body>
+</html>

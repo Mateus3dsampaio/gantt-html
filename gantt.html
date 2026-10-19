@@ -284,8 +284,8 @@ svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width:
 }
 .sunday-overlay-cell          { height: 100%; }
 .sunday-overlay-cell.is-sunday {
-  background: repeating-linear-gradient(135deg, rgba(244,63,94,.24) 0 5px, rgba(244,63,94,.08) 5px 10px);
-  box-shadow: inset 1px 0 0 rgba(244,63,94,.42), inset -1px 0 0 rgba(244,63,94,.42);
+  background: repeating-linear-gradient(135deg, rgba(244,63,94,.36) 0 5px, rgba(244,63,94,.22) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(244,63,94,.50), inset -1px 0 0 rgba(244,63,94,.50);
 }
 
 /* Linha do dia de hoje */
@@ -911,8 +911,8 @@ svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width:
 }
 
 .sunday-overlay-cell.is-feriado {
-  background: repeating-linear-gradient(135deg, rgba(168,85,247,.30) 0 5px, rgba(168,85,247,.10) 5px 10px);
-  box-shadow: inset 1px 0 0 rgba(168,85,247,.52), inset -1px 0 0 rgba(168,85,247,.52);
+  background: repeating-linear-gradient(135deg, rgba(168,85,247,.40) 0 5px, rgba(168,85,247,.24) 5px 10px);
+  box-shadow: inset 1px 0 0 rgba(168,85,247,.58), inset -1px 0 0 rgba(168,85,247,.58);
 }
 
 .feriado-equipe-badge {
@@ -1960,7 +1960,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         }
         blocosHtml += `
         <div class="gantt-block${isAssist ? " gantt-block-assistencia" : ""}"
-          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}${maskStyle}"
+          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}"
           data-tip="${tip}"
           data-ag-id="${ag.id}"
           onmouseenter="window._ganttTooltip.mostrar(event,this)"

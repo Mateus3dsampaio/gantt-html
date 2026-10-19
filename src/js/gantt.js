@@ -229,7 +229,7 @@ export function renderGantt() {
 
       blocosHtml += `
         <div class="gantt-block${isAssist ? ' gantt-block-assistencia' : ''}"
-          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}${maskStyle}"
+          style="left:${leftPct}%;width:${widthPct}%;background:${_degrade(cor)};box-shadow:0 4px 14px ${cor}66, inset 0 1px 0 rgba(255,255,255,.28);border-radius:${radius};${assistStyle}"
           data-tip="${tip}"
           data-ag-id="${ag.id}"
           onmouseenter="window._ganttTooltip.mostrar(event,this)"

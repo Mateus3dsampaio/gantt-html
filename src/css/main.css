@@ -351,6 +351,15 @@ svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width:
 .tab-btn:hover  { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--accent-solid); font-weight: 500; }
 
+/* Listas suspensas: o popup nativo não herda o fundo translúcido dos campos,
+   então usa fundo sólido do tema + texto claro. */
+select { color-scheme: dark; }
+select option,
+select optgroup {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
 /* ══════════════════════════════
    FILTROS
 ══════════════════════════════ */

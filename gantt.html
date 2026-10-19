@@ -8,50 +8,82 @@
    AGENDA DE MONTAGEM — Estilos Globais
    ═══════════════════════════════════════════ */
 
-/* ── Variáveis de tema ── */
-:root {
-  --bg:           #f4f3ef;
-  --surface:      #ffffff;
-  --surface-alt:  #fafaf7;
-  --surface-2:    #f9f8f5;
-  --border:       #e2e1d8;
-  --border-light: #f0efe6;
-  --border-input: #d4d3ca;
-  --text:         #1a1a18;
-  --text-2:       #555;
-  --text-3:       #666;
-  --text-muted:   #888;
-  --text-faint:   #aaa;
-  --text-ghost:   #bbb;
-}
+/* ── Variáveis de tema ──
+   Dois temas escuros, escolhidos pelo botão da barra lateral (body[data-tema]).
+   A · Neon (padrão)   B · Aurora                                           */
+:root, body[data-tema="neon"] {
+  --bg:           #0a0e1f;
+  --surface:      #121734;
+  --surface-alt:  #0f1430;
+  --surface-2:    #161c3d;
+  --field:        rgba(255,255,255,.05);
+  --border:       rgba(255,255,255,.10);
+  --border-light: rgba(255,255,255,.06);
+  --border-input: rgba(255,255,255,.16);
+  --text:         #eef0ff;
+  --text-2:       #c3c9ea;
+  --text-3:       #a9b0d6;
+  --text-muted:   #8e97c2;
+  --text-faint:   #6f78a6;
+  --text-ghost:   #5a6390;
 
-body.dark {
-  --bg:           #111111;
-  --surface:      #1c1c1c;
-  --surface-alt:  #242424;
-  --surface-2:    #202020;
-  --border:       #333333;
-  --border-light: #2a2a2a;
-  --border-input: #3d3d3d;
-  --text:         #e0e0e0;
-  --text-2:       #a8a8a8;
-  --text-3:       #909090;
-  --text-muted:   #707070;
-  --text-faint:   #555555;
-  --text-ghost:   #444444;
+  --accent:       linear-gradient(135deg,#7c3aed,#06b6d4);
+  --accent-solid: #8b5cf6;
+  --accent-soft:  rgba(139,92,246,.18);
+  --glow1: rgba(124,58,237,.28); --glow2: rgba(6,182,212,.18);
+  --shadow: 0 10px 40px rgba(0,0,0,.35);
+
+  --dx-card: rgba(255,255,255,.045); --dx-card-border: rgba(255,255,255,.09); --dx-shadow: 0 10px 40px rgba(0,0,0,.35);
+  --dx-text: var(--text); --dx-muted: var(--text-muted); --dx-grid: rgba(255,255,255,.07);
+  --dx-k1: linear-gradient(135deg,#7c3aed,#d946ef); --dx-k2: linear-gradient(135deg,#06b6d4,#3b82f6); --dx-k3: linear-gradient(135deg,#f59e0b,#ef4444);
+  --dx-accent: var(--accent); --dx-chip: rgba(255,255,255,.07);
+  --dx-ring: var(--bg);
+}
+body[data-tema="aurora"] {
+  --bg:           #12061f;
+  --surface:      #1c0d30;
+  --surface-alt:  #170a29;
+  --surface-2:    #200f37;
+  --field:        rgba(255,255,255,.05);
+  --border:       rgba(236,72,153,.20);
+  --border-light: rgba(255,255,255,.06);
+  --border-input: rgba(255,255,255,.16);
+  --text:         #fbeeff;
+  --text-2:       #e2cdf2;
+  --text-3:       #cbb0e0;
+  --text-muted:   #b496cf;
+  --text-faint:   #8d71ae;
+  --text-ghost:   #705896;
+
+  --accent:       linear-gradient(135deg,#ec4899,#f97316);
+  --accent-solid: #ec4899;
+  --accent-soft:  rgba(236,72,153,.18);
+  --glow1: rgba(236,72,153,.25); --glow2: rgba(168,85,247,.22);
+  --shadow: 0 10px 40px rgba(0,0,0,.4);
+
+  --dx-card: rgba(255,255,255,.05); --dx-card-border: rgba(236,72,153,.18); --dx-shadow: 0 10px 40px rgba(0,0,0,.4);
+  --dx-grid: rgba(255,255,255,.07);
+  --dx-k1: linear-gradient(135deg,#ec4899,#f97316); --dx-k2: linear-gradient(135deg,#a855f7,#6366f1); --dx-k3: linear-gradient(135deg,#22d3ee,#84cc16);
+  --dx-chip: rgba(255,255,255,.08);
 }
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(900px 500px at 6% -8%, var(--glow1), transparent 60%),
+    radial-gradient(800px 500px at 100% 8%, var(--glow2), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
+  color-scheme: dark;
   min-height: 100vh;
   display: flex;
   font-size: 14px;
   transition: background 0.2s, color 0.2s;
 }
+* { scrollbar-color: rgba(255,255,255,.22) transparent; }
 
 /* ══════════════════════════════
    SIDEBAR
@@ -59,7 +91,7 @@ body {
 #sidebar {
   width: 230px;
   min-width: 230px;
-  background: var(--surface);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-alt) 100%);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -90,9 +122,8 @@ body {
   transition: background 0.12s, color 0.12s;
   user-select: none;
 }
-.nav-item:hover  { background: var(--bg); color: var(--text); }
-.nav-item.active { background: #edf3fb; color: #1558a0; border-left-color: #378ADD; font-weight: 500; }
-body.dark .nav-item.active { background: #2e2e2e; color: #e0e0e0; }
+.nav-item:hover  { background: rgba(255,255,255,.05); color: var(--text); }
+.nav-item.active { background: var(--accent-soft); color: var(--text); border-left-color: var(--accent-solid); font-weight: 500; }
 .nav-icon { font-size: 15px; width: 18px; text-align: center; }
 
 /* Botão de tema */
@@ -115,7 +146,7 @@ body.dark .nav-item.active { background: #2e2e2e; color: #e0e0e0; }
   font-family: inherit;
   text-align: left;
 }
-.theme-toggle:hover { background: var(--bg); color: var(--text); }
+.theme-toggle:hover { background: rgba(255,255,255,.05); color: var(--text); }
 .theme-toggle-icon { font-size: 15px; width: 18px; text-align: center; }
 
 /* ══════════════════════════════
@@ -142,9 +173,9 @@ body.dark .nav-item.active { background: #2e2e2e; color: #e0e0e0; }
   align-items: center;
   gap: 5px;
   padding: 7px 14px;
-  border-radius: 6px;
+  border-radius: 10px;
   border: 1px solid var(--border-input);
-  background: var(--surface);
+  background: var(--field);
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
@@ -152,14 +183,12 @@ body.dark .nav-item.active { background: #2e2e2e; color: #e0e0e0; }
   transition: background 0.12s, border-color 0.12s;
   white-space: nowrap;
 }
-.btn:hover         { background: var(--bg); }
+.btn:hover         { background: rgba(255,255,255,.10); }
 .btn:active        { transform: scale(0.98); }
-.btn-primary       { background: #378ADD; color: #fff; border-color: #2070bb; }
-.btn-primary:hover { background: #2a72c0; }
-.btn-danger        { color: #A32D2D; border-color: #f0c0c0; }
-.btn-danger:hover  { background: #fdf0f0; }
-body.dark .btn-danger { color: #ff8080; border-color: #4a2a2a; }
-body.dark .btn-danger:hover { background: #2e1a1a; }
+.btn-primary       { background: var(--accent); color: #fff; border-color: transparent; box-shadow: 0 6px 18px rgba(0,0,0,.25); font-weight: 600; }
+.btn-primary:hover { background: var(--accent); filter: brightness(1.12); }
+.btn-danger        { color: #ff9a9a; border-color: rgba(229,80,80,.40); }
+.btn-danger:hover  { background: rgba(229,80,80,.14); }
 .btn-sm   { padding: 4px 10px; font-size: 12px; }
 .btn-icon { padding: 5px 8px; }
 
@@ -171,7 +200,8 @@ body.dark .btn-danger:hover { background: #2e1a1a; }
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
   padding: 10px 16px;
   margin-bottom: 14px;
   justify-content: space-between;
@@ -183,7 +213,7 @@ body.dark .btn-danger:hover { background: #2e1a1a; }
 .legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); }
 .legend-dot   { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
 
-.gantt-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+.gantt-scroll { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); }
 .gantt-table  { width: 100%; border-collapse: collapse; }
 
 /* Cabeçalho de dias */
@@ -206,10 +236,8 @@ body.dark .btn-danger:hover { background: #2e1a1a; }
 }
 .day-num:last-child { border-right: none; }
 .day-num.is-weekend { color: var(--text-ghost); background: var(--surface-alt); }
-.day-num.is-sunday  { color: #c0392b; background: #fff0f0; font-weight: 700; text-shadow: 0 0 6px rgba(220, 60, 60, 0.5); }
-.day-num.is-today   { color: #c0392b; font-weight: 700; background: #fff5f4; }
-body.dark .day-num.is-sunday { background: #282020; }
-body.dark .day-num.is-today  { background: #1e2e1e; }
+.day-num.is-sunday  { color: #fb7185; background: rgba(244,63,94,.14); font-weight: 700; text-shadow: 0 0 6px rgba(244, 63, 94, 0.5); }
+.day-num.is-today   { color: #fb7185; font-weight: 700; background: var(--accent-soft); }
 
 /* Linhas de equipes */
 .gantt-table tbody tr         { border-bottom: 1px solid var(--border-light); }
@@ -232,8 +260,7 @@ body.dark .day-num.is-today  { background: #1e2e1e; }
 }
 .bars-grid-cell               { border-right: 1px solid var(--border-light); height: 100%; }
 .bars-grid-cell:last-child    { border-right: none; }
-.bars-grid-cell.is-today      { background: #fff8f7; }
-body.dark .bars-grid-cell.is-today { background: #1e2e1e; }
+.bars-grid-cell.is-today      { background: var(--accent-soft); }
 
 /* Overlay de domingo */
 .sunday-overlay {
@@ -265,12 +292,17 @@ body.dark .bars-grid-cell.is-today { background: #1e2e1e; }
   transition: filter 0.12s, opacity 0.12s;
   min-width: 4px;
 }
-.gantt-block:hover { filter: brightness(0.88); z-index: 10; }
+.gantt-block:hover { filter: brightness(1.12); z-index: 10; }
+.gantt-block { box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.gantt-block::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 60%);
+}
 
 /* ══════════════════════════════
    TABELAS DE DADOS
 ══════════════════════════════ */
-.table-card { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+.table-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th {
   background: var(--surface-alt);
@@ -292,12 +324,9 @@ body.dark .bars-grid-cell.is-today { background: #1e2e1e; }
   padding: 3px 8px; border-radius: 4px;
   font-size: 11px; font-weight: 500; white-space: nowrap;
 }
-.badge-agendado     { background: #deeef9; color: #1558a0; }
-.badge-em-andamento { background: #fdefd9; color: #7a4507; }
-.badge-concluido    { background: #e2f4dc; color: #2e6010; }
-body.dark .badge-agendado     { background: #1e2a38; color: #7ab8e8; }
-body.dark .badge-em-andamento { background: #2a2010; color: #d9a055; }
-body.dark .badge-concluido    { background: #182818; color: #6acc60; }
+.badge-agendado     { background: rgba(55,138,221,.20);  color: #8cc4f2; }
+.badge-em-andamento { background: rgba(239,159,39,.20);  color: #f7bd62; }
+.badge-concluido    { background: rgba(29,158,117,.22);  color: #62dba9; }
 
 /* ══════════════════════════════
    ABAS (Cadastro)
@@ -313,8 +342,7 @@ body.dark .badge-concluido    { background: #182818; color: #6acc60; }
   font-family: inherit;
 }
 .tab-btn:hover  { color: var(--text); }
-.tab-btn.active { color: #1558a0; border-bottom-color: #378ADD; font-weight: 500; }
-body.dark .tab-btn.active { color: #e0e0e0; }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--accent-solid); font-weight: 500; }
 
 /* ══════════════════════════════
    FILTROS
@@ -323,24 +351,24 @@ body.dark .tab-btn.active { color: #e0e0e0; }
 .filters-bar select,
 .filters-bar input[type="month"] {
   padding: 6px 10px;
-  border: 1px solid var(--border-input); border-radius: 6px;
+  border: 1px solid var(--border-input); border-radius: 10px;
   font-size: 13px; font-family: inherit;
-  background: var(--surface); color: var(--text); cursor: pointer;
+  background: var(--field); color: var(--text); cursor: pointer;
 }
 .filters-bar select:focus,
-.filters-bar input:focus { outline: none; border-color: #378ADD; }
+.filters-bar input:focus { outline: none; border-color: var(--accent-solid); }
 
 /* ══════════════════════════════
    MODAL
 ══════════════════════════════ */
 #modal-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45); z-index: 500;
+  background: rgba(5,8,20,0.65); backdrop-filter: blur(4px); z-index: 500;
   align-items: center; justify-content: center;
 }
 #modal-overlay.open { display: flex; }
 #modal {
-  background: var(--surface); border-radius: 12px;
+  background: var(--surface); border-radius: 18px;
   width: 600px; max-width: 96vw; max-height: 92vh;
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(0,0,0,0.28);
@@ -378,15 +406,15 @@ body.dark .tab-btn.active { color: #e0e0e0; }
 .form-group input,
 .form-group select {
   width: 100%; padding: 8px 11px;
-  border: 1px solid var(--border-input); border-radius: 6px;
+  border: 1px solid var(--border-input); border-radius: 10px;
   font-size: 13px; font-family: inherit; color: var(--text);
-  background: var(--surface); transition: border-color 0.12s;
+  background: var(--field); transition: border-color 0.12s;
 }
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #378ADD;
-  box-shadow: 0 0 0 2px rgba(55,138,221,0.14);
+  border-color: var(--accent-solid);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -397,10 +425,8 @@ body.dark .tab-btn.active { color: #e0e0e0; }
   padding: 9px 13px; border-radius: 6px;
   font-size: 13px; margin-bottom: 12px; line-height: 1.45;
 }
-.alert-error   { background: #fdf0f0; color: #922; border: 1px solid #f0c0c0; }
-.alert-success { background: #e2f4dc; color: #2e6010; border: 1px solid #b0d898; }
-body.dark .alert-error   { background: #2a1414; color: #ff8080; border-color: #4a2020; }
-body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1e3e1e; }
+.alert-error   { background: rgba(229,80,80,.14);  color: #ff9a9a; border: 1px solid rgba(229,80,80,.38); }
+.alert-success { background: rgba(29,158,117,.16); color: #62dba9; border: 1px solid rgba(29,158,117,.38); }
 
 /* ══════════════════════════════
    ESTADO VAZIO
@@ -415,12 +441,13 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
 ══════════════════════════════ */
 #tooltip {
   position: fixed;
-  background: #1a1a18; color: #f0efe8;
-  padding: 9px 13px; border-radius: 7px;
+  background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border-input);
+  padding: 9px 13px; border-radius: 10px;
   font-size: 12px; line-height: 1.65;
   pointer-events: none; z-index: 1000;
   display: none; max-width: 230px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
 }
 #tooltip strong { color: #fff; font-weight: 600; }
 
@@ -430,7 +457,8 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
 .pendentes-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
   margin-bottom: 14px;
   overflow: hidden;
 }
@@ -455,7 +483,7 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
   justify-content: center;
   min-width: 22px; height: 22px;
   border-radius: 11px;
-  background: #378ADD;
+  background: var(--accent);
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -464,32 +492,22 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
 .pendentes-grupo-valor {
   font-size: 12px;
   font-weight: 600;
-  color: #2a9d5c;
-  margin-left: 6px;
-}
-[data-theme="dark"] .pendentes-grupo-valor {
   color: #5dd68c;
+  margin-left: 6px;
 }
 .pendentes-item-valor {
   font-size: 11px;
   font-weight: 600;
-  color: #2a9d5c;
-}
-[data-theme="dark"] .pendentes-item-valor {
   color: #5dd68c;
 }
 .pendentes-valor {
   font-size: 12px;
   font-weight: 600;
-  color: #2a9d5c;
-  background: #e6f7ee;
+  color: #5dd68c;
+  background: rgba(93,214,140,.14);
   border-radius: 10px;
   padding: 2px 8px;
   margin-left: 4px;
-}
-[data-theme="dark"] .pendentes-valor {
-  color: #5dd68c;
-  background: #1a3a28;
 }
 .pendentes-corpo {
   padding: 10px 16px;
@@ -531,7 +549,7 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
 .pendentes-vazio {
   text-align: center;
   padding: 14px;
-  color: #1D9E75;
+  color: #62dba9;
   font-size: 13px;
 }
 
@@ -545,12 +563,11 @@ body.dark .alert-success { background: #142414; color: #6acc60; border-color: #1
   border-radius: 4px;
   font-size: 10px;
   font-weight: 500;
-  background: #fdf0f0;
-  color: #922;
-  border: 1px solid #f0c0c0;
+  background: rgba(229,80,80,.18);
+  color: #ff9a9a;
+  border: 1px solid rgba(229,80,80,.38);
   white-space: nowrap;
 }
-body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color: #4a2020; }
 
 /* ══════════════════════════════
    MODO AGENDAR (CLIQUE NO GANTT)
@@ -560,10 +577,10 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #1a6fc4;
+  background: var(--accent);
   color: #fff;
   padding: 10px 18px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 10px;
   font-size: 13px;
   font-weight: 500;
@@ -589,7 +606,7 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 /* Cursor + hover nas células quando em modo seleção */
 .gantt-modo-selecao .bars-cell { cursor: crosshair; }
 .gantt-modo-selecao .bars-grid-cell:hover {
-  background: rgba(55,138,221,.18);
+  background: var(--accent-soft);
 }
 
 /* ══════════════════════════════
@@ -607,7 +624,7 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 .resumo-card {
   background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 9px 10px;
 }
 .resumo-card-nome {
@@ -654,7 +671,8 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 .settings-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
   padding: 22px 24px;
   margin-bottom: 16px;
   max-width: 520px;
@@ -675,44 +693,21 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
   font-size: 13px;
   min-height: 18px;
 }
-.settings-status--ok    { color: #1D9E75; }
-.settings-status--error { color: #A32D2D; }
+.settings-status--ok    { color: #62dba9; }
+.settings-status--error { color: #ff9a9a; }
 
 /* ══════════════════════════════
    DASHBOARD (temas A · Neon e B · Aurora)
 ══════════════════════════════ */
-.dx {
-  --dx-bg: #0a0e1f; --dx-glow1: rgba(124,58,237,.28); --dx-glow2: rgba(6,182,212,.18);
-  --dx-card: rgba(255,255,255,.045); --dx-card-border: rgba(255,255,255,.09); --dx-shadow: 0 10px 40px rgba(0,0,0,.35);
-  --dx-text: #eef0ff; --dx-muted: #8e97c2; --dx-grid: rgba(255,255,255,.07);
-  --dx-k1: linear-gradient(135deg,#7c3aed,#d946ef); --dx-k2: linear-gradient(135deg,#06b6d4,#3b82f6); --dx-k3: linear-gradient(135deg,#f59e0b,#ef4444);
-  --dx-accent: linear-gradient(135deg,#7c3aed,#06b6d4); --dx-chip: rgba(255,255,255,.07);
-  --dx-ring: #0a0e1f;
-  color: var(--dx-text);
-  background:
-    radial-gradient(900px 500px at 6% -8%, var(--dx-glow1), transparent 60%),
-    radial-gradient(800px 500px at 100% 8%, var(--dx-glow2), transparent 60%),
-    var(--dx-bg);
-  border-radius: 20px;
-  padding: 24px 26px 28px;
-}
-.dx[data-tema="aurora"] {
-  --dx-bg: #12061f; --dx-glow1: rgba(236,72,153,.25); --dx-glow2: rgba(168,85,247,.22);
-  --dx-card: rgba(255,255,255,.05); --dx-card-border: rgba(236,72,153,.18);
-  --dx-text: #fbeeff; --dx-muted: #b496cf; --dx-grid: rgba(255,255,255,.07);
-  --dx-k1: linear-gradient(135deg,#ec4899,#f97316); --dx-k2: linear-gradient(135deg,#a855f7,#6366f1); --dx-k3: linear-gradient(135deg,#22d3ee,#84cc16);
-  --dx-accent: linear-gradient(135deg,#ec4899,#f97316); --dx-chip: rgba(255,255,255,.08);
-  --dx-ring: #12061f;
-}
+.dx { color: var(--dx-text); }
 
 .dx-topo { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-.dx-titulo { font-size: 24px; font-weight: 700; letter-spacing: -.3px; }
-.dx-temas { display: inline-flex; background: var(--dx-chip); border-radius: 999px; padding: 3px; }
-.dx-temas button, .dx-toggle button {
+.dx-titulo { font-size: 19px; font-weight: 600; }
+.dx-toggle button {
   border: none; background: transparent; color: var(--dx-muted); font-size: 12px; font-weight: 600;
   padding: 5px 14px; border-radius: 999px; cursor: pointer; font-family: inherit;
 }
-.dx-temas button.on, .dx-toggle button.on { background: var(--dx-accent); color: #fff; }
+.dx-toggle button.on { background: var(--dx-accent); color: #fff; }
 
 .dx .dash-filters { margin-bottom: 18px; }
 .dx .dash-filters label { color: var(--dx-muted); }
@@ -720,7 +715,6 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
   background: var(--dx-card); border: 1px solid var(--dx-card-border); color: var(--dx-text);
   border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit;
 }
-.dx .dash-filters select option { color: #1a1a18; }
 .dx-btn-aplicar {
   background: var(--dx-accent); border: none; color: #fff; font-weight: 600; cursor: pointer;
   border-radius: 10px; padding: 8px 16px; font-size: 13px; font-family: inherit;
@@ -792,16 +786,16 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 .ambiente-row input[type="number"] {
   padding: 7px 10px;
   border: 1px solid var(--border-input);
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 13px;
   font-family: inherit;
   color: var(--text);
-  background: var(--surface);
+  background: var(--field);
 }
 .ambiente-row input:focus {
   outline: none;
-  border-color: #378ADD;
-  box-shadow: 0 0 0 2px rgba(55,138,221,0.14);
+  border-color: var(--accent-solid);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 .ambiente-row .amb-remove {
   flex: 0 0 auto;
@@ -887,15 +881,15 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 }
 
 .gantt-row-drop-target td {
-  background: rgba(55, 138, 221, 0.08);
-  outline: 2px dashed #378ADD;
+  background: var(--accent-soft);
+  outline: 2px dashed var(--accent-solid);
   outline-offset: -2px;
 }
 
 
 /* ── Feriados ─────────────────────────────────────────────────── */
 .day-num.is-feriado {
-  color: #7c3aed;
+  color: #c4b5fd;
   font-weight: 700;
   text-shadow: 0 0 6px rgba(168, 85, 247, 0.5);
 }
@@ -940,7 +934,7 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 }
 
 .th-sort-ativo {
-  color: #378ADD;
+  color: var(--accent-solid);
 }
 
 
@@ -1159,7 +1153,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
 
     <div class="settings-card">
       <div class="settings-card-title">Restaurar backup</div>
-      <p class="settings-card-desc" style="color:#A32D2D">Atenção: substitui <strong>todos</strong> os dados atuais pelo conteúdo do arquivo selecionado.</p>
+      <p class="settings-card-desc" style="color:#ff9a9a">Atenção: substitui <strong>todos</strong> os dados atuais pelo conteúdo do arquivo selecionado.</p>
       <input type="file" id="import-file" accept=".json" style="display:none">
       <button class="btn btn-danger" id="btn-import">Carregar backup</button>
       <div id="import-status" class="settings-status"></div>
@@ -1168,14 +1162,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
 
   <!-- ── DASHBOARD ── -->
   <div id="view-dashboard" class="view">
-    <div class="dx" id="dx" data-tema="neon">
+    <div class="dx" id="dx">
 
       <div class="dx-topo">
         <div class="dx-titulo">Dashboard de Equipes</div>
-        <div class="dx-temas" title="Tema do dashboard">
-          <button type="button" data-dx-tema="neon">A · Neon</button>
-          <button type="button" data-dx-tema="aurora">B · Aurora</button>
-        </div>
       </div>
 
       <div class="dash-filters dx-filtros">
@@ -1503,11 +1493,11 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     <div id="modal-alert"></div>
     <div class="form-group">
       <label>Cliente</label>
-      <div style="padding:8px 0;font-size:13px;color:#333;font-weight:500">${esc(ag.cliente_nome)}</div>
+      <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.cliente_nome)}</div>
     </div>
     <div class="form-group">
       <label>Ambiente</label>
-      <div style="padding:8px 0;font-size:13px;color:#333;font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? "s" : ""})${ag.tipo === "assistencia" ? " \u2014 \u{1F527} Assist\xEAncia" : ""}</div>
+      <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? "s" : ""})${ag.tipo === "assistencia" ? " \u2014 \u{1F527} Assist\xEAncia" : ""}</div>
     </div>
     <div class="form-group">
       <label>Equipe</label>
@@ -1527,7 +1517,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     </div>
     <div class="form-group" id="f-ag-obs-group">
       <label>Observa\xE7\xF5es</label>
-      <textarea id="f-ag-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid #d4d3ca;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${esc(ag.observacoes || "")}</textarea>
+      <textarea id="f-ag-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);color:var(--text);font-size:13px;font-family:inherit;resize:vertical">${esc(ag.observacoes || "")}</textarea>
     </div>`;
     document.getElementById("modal-rodape").innerHTML = `
     <button class="btn btn-danger" onclick="window._agendamentos.excluirDoModal()">Excluir</button>
@@ -1553,7 +1543,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     if (obsGroup) {
       if (st === "Aguardando Assist\xEAncia") {
         obsGroup.querySelector("label").textContent = "Observa\xE7\xF5es (descreva o problema)";
-        obsGroup.querySelector("label").style.color = "#A32D2D";
+        obsGroup.querySelector("label").style.color = "#ff9a9a";
       } else {
         obsGroup.querySelector("label").textContent = "Observa\xE7\xF5es";
         obsGroup.querySelector("label").style.color = "";
@@ -1691,7 +1681,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       const ambientesJson = esc(JSON.stringify(g.ambientes));
       html += `<div class="pendentes-grupo">
       <div class="pendentes-grupo-header">
-        ${esc(g.cliente_nome)} <span style="color:#999;font-weight:400">(${label})</span>${valorGrupoHtml}
+        ${esc(g.cliente_nome)} <span style="color:var(--text-muted);font-weight:400">(${label})</span>${valorGrupoHtml}
         <button class="btn btn-sm pendentes-editar-btn" onclick="window._cadastroRapido.editarCliente(${g.cliente_id}, JSON.parse(this.dataset.ambientes))" data-ambientes="${ambientesJson}" title="Editar ambientes">&#9998;</button>
       </div>`;
       for (const amb of g.ambientes) {
@@ -2311,7 +2301,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       <td>
         <span class="equipe-cor-dot" style="background:${esc(e.cor || "#3B82F6")}"></span>
         ${esc(e.nome)}
-        ${e.ativa === 0 ? '<span style="color:#bbb;font-size:11px"> (inativa)</span>' : ""}
+        ${e.ativa === 0 ? '<span style="color:var(--text-ghost);font-size:11px"> (inativa)</span>' : ""}
       </td>
       <td>${esc(e.cor || "#3B82F6")}</td>
       <td>
@@ -2384,15 +2374,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     tbody.innerHTML = clientes.map((c) => {
       const total = c.total_ambientes || 0;
       const pend = c.pendentes_ambientes || 0;
-      const ambBadge = total > 0 ? ` <span style="font-size:11px;color:#888">(${pend}/${total} amb.)</span>` : "";
+      const ambBadge = total > 0 ? ` <span style="font-size:11px;color:var(--text-muted)">(${pend}/${total} amb.)</span>` : "";
       return `
     <tr>
       <td>${esc(c.nome)}${ambBadge}</td>
       <td>
-        ${c.telefone ? `${esc(c.telefone)} <a href="https://wa.me/55${c.telefone.replace(/\D/g, "")}" target="_blank" title="Abrir WhatsApp" style="color:#25D366;text-decoration:none;font-size:15px">&#128233;</a>` : '<span style="color:#bbb">\u2014</span>'}
+        ${c.telefone ? `${esc(c.telefone)} <a href="https://wa.me/55${c.telefone.replace(/\D/g, "")}" target="_blank" title="Abrir WhatsApp" style="color:#25D366;text-decoration:none;font-size:15px">&#128233;</a>` : '<span style="color:var(--text-ghost)">\u2014</span>'}
       </td>
       <td>
-        ${c.endereco ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.endereco)}" target="_blank" title="Abrir no Google Maps" style="color:inherit;text-decoration:none">${esc(c.endereco)} &#128205;</a>` : '<span style="color:#bbb">\u2014</span>'}
+        ${c.endereco ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.endereco)}" target="_blank" title="Abrir no Google Maps" style="color:inherit;text-decoration:none">${esc(c.endereco)} &#128205;</a>` : '<span style="color:var(--text-ghost)">\u2014</span>'}
       </td>
       <td>
         <button class="btn btn-sm" onclick="window._clientes.abrirModal(${c.id})">Editar</button>
@@ -2412,16 +2402,16 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       <input type="text" id="f-cl-nome" value="${cl ? esc(cl.nome) : ""}" placeholder="Ex: Jo\xE3o Silva">
     </div>
     <div class="form-group">
-      <label>Telefone <span style="font-weight:400;color:#aaa">(opcional)</span></label>
+      <label>Telefone <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
       <input type="text" id="f-cl-tel" value="${cl ? esc(cl.telefone || "") : ""}" placeholder="(88) 99999-9999">
     </div>
     <div class="form-group">
-      <label>Endere\xE7o <span style="font-weight:400;color:#aaa">(opcional)</span></label>
+      <label>Endere\xE7o <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
       <input type="text" id="f-cl-end" value="${cl ? esc(cl.endereco || "") : ""}" placeholder="Rua, n\xFAmero, bairro...">
     </div>
     <div class="form-group">
-      <label>Observa\xE7\xF5es <span style="font-weight:400;color:#aaa">(opcional)</span></label>
-      <textarea id="f-cl-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid #d4d3ca;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${cl ? esc(cl.observacoes || "") : ""}</textarea>
+      <label>Observa\xE7\xF5es <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
+      <textarea id="f-cl-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);color:var(--text);font-size:13px;font-family:inherit;resize:vertical">${cl ? esc(cl.observacoes || "") : ""}</textarea>
     </div>`;
     document.getElementById("modal-rodape").innerHTML = `
     <button class="btn" onclick="window._modal.fechar()">Cancelar</button>
@@ -2536,15 +2526,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       <label>Endere\xE7o</label>
       <input type="text" id="cr-end" placeholder="Rua, n\xFAmero, bairro...">
     </div>
-    <hr style="margin:14px 0;border:none;border-top:1px solid #e2e1d8">
+    <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label style="font-size:13px;font-weight:600;color:#333;margin:0">Ambientes</label>
+      <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">Ambientes</label>
       <button class="btn btn-sm" id="cr-add-amb" type="button">+ Adicionar ambiente</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="flex:2;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
-      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
-      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
+      <span style="flex:2;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
+      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
+      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
       <span style="flex:0 0 auto;visibility:hidden;padding:4px 10px;font-size:12px">&times;</span>
     </div>
     <div id="cr-ambientes"></div>
@@ -2612,15 +2602,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       <label>Endere\xE7o</label>
       <input type="text" id="cr-end" placeholder="Rua, n\xFAmero, bairro..." value="${esc(cliente.endereco || "")}">
     </div>
-    <hr style="margin:14px 0;border:none;border-top:1px solid #e2e1d8">
+    <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label style="font-size:13px;font-weight:600;color:#333;margin:0">Ambientes</label>
+      <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">Ambientes</label>
       <button class="btn btn-sm" id="cr-add-amb" type="button">+ Adicionar ambiente</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="flex:2;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
-      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
-      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
+      <span style="flex:2;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
+      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
+      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
       <span style="flex:0 0 auto;visibility:hidden;padding:4px 10px;font-size:12px">&times;</span>
     </div>
     <div id="cr-ambientes"></div>
@@ -2701,8 +2691,6 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     "Novembro",
     "Dezembro"
   ];
-  var CHAVE_TEMA = "gantt_dash_tema";
-  var TEMAS = ["neon", "aurora"];
   var _charts = [];
   var _dados = null;
   var _modoPizza = "pct";
@@ -2730,22 +2718,8 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       if (i === 11) fim.selected = true;
       mesFimEl.appendChild(fim);
     });
-    let tema = "neon";
-    try {
-      const t = localStorage.getItem(CHAVE_TEMA);
-      if (TEMAS.includes(t)) tema = t;
-    } catch {
-    }
-    aplicarTema(tema);
-    document.querySelectorAll(".dx-temas button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        aplicarTema(btn.dataset.dxTema);
-        try {
-          localStorage.setItem(CHAVE_TEMA, btn.dataset.dxTema);
-        } catch {
-        }
-        if (_dados) renderTudo();
-      });
+    window.addEventListener("gantt:tema-alterado", () => {
+      if (_dados) renderTudo();
     });
     document.querySelectorAll("#dx-toggle-pizza button").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -2754,10 +2728,6 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         if (_dados) renderPizza(_dados);
       });
     });
-  }
-  function aplicarTema(tema) {
-    document.getElementById("dx").dataset.tema = tema;
-    document.querySelectorAll(".dx-temas button").forEach((b) => b.classList.toggle("on", b.dataset.dxTema === tema));
   }
   function marcarToggle() {
     document.querySelectorAll("#dx-toggle-pizza button").forEach((b) => b.classList.toggle("on", b.dataset.modo === _modoPizza));
@@ -3162,20 +3132,38 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   }
 
   // src/js/theme.js
-  var STORAGE_KEY = "agenda-tema";
-  function aplicarTema2(dark) {
-    document.body.classList.toggle("dark", dark);
-    document.getElementById("theme-icon").textContent = dark ? "\u2600\uFE0F" : "\u{1F319}";
-    document.getElementById("theme-label").textContent = dark ? "Modo claro" : "Modo escuro";
+  var STORAGE_KEY = "agenda-tema-visual";
+  var TEMAS = {
+    neon: { letra: "A", nome: "Neon", proximo: "aurora" },
+    aurora: { letra: "B", nome: "Aurora", proximo: "neon" }
+  };
+  function aplicarTema(tema) {
+    const t = TEMAS[tema];
+    document.body.dataset.tema = tema;
+    document.body.classList.add("dark");
+    document.getElementById("theme-icon").textContent = "\u{1F3A8}";
+    document.getElementById("theme-label").textContent = `Tema ${t.letra} \xB7 ${t.nome}`;
+    const btn = document.querySelector(".theme-toggle");
+    if (btn) btn.title = `Clique para trocar para o tema ${TEMAS[t.proximo].letra} \xB7 ${TEMAS[t.proximo].nome}`;
+    window.dispatchEvent(new CustomEvent("gantt:tema-alterado", { detail: tema }));
   }
   function initTheme() {
-    const dark = localStorage.getItem(STORAGE_KEY) === "dark";
-    aplicarTema2(dark);
+    let tema = "neon";
+    try {
+      const salvo = localStorage.getItem(STORAGE_KEY);
+      if (TEMAS[salvo]) tema = salvo;
+    } catch {
+    }
+    aplicarTema(tema);
   }
   function toggle2() {
-    const dark = !document.body.classList.contains("dark");
-    localStorage.setItem(STORAGE_KEY, dark ? "dark" : "light");
-    aplicarTema2(dark);
+    const atual = TEMAS[document.body.dataset.tema] ? document.body.dataset.tema : "neon";
+    const novo = TEMAS[atual].proximo;
+    try {
+      localStorage.setItem(STORAGE_KEY, novo);
+    } catch {
+    }
+    aplicarTema(novo);
   }
   window._theme = { toggle: toggle2 };
 

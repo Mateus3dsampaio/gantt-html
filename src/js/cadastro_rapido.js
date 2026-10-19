@@ -103,15 +103,15 @@ export function abrirCadastroRapido() {
       <label>Endereço</label>
       <input type="text" id="cr-end" placeholder="Rua, número, bairro...">
     </div>
-    <hr style="margin:14px 0;border:none;border-top:1px solid #e2e1d8">
+    <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label style="font-size:13px;font-weight:600;color:#333;margin:0">Ambientes</label>
+      <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">Ambientes</label>
       <button class="btn btn-sm" id="cr-add-amb" type="button">+ Adicionar ambiente</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="flex:2;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
-      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
-      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
+      <span style="flex:2;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
+      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
+      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
       <span style="flex:0 0 auto;visibility:hidden;padding:4px 10px;font-size:12px">&times;</span>
     </div>
     <div id="cr-ambientes"></div>
@@ -201,15 +201,15 @@ export function abrirEdicaoCliente(clienteId, ambientes) {
       <label>Endereço</label>
       <input type="text" id="cr-end" placeholder="Rua, número, bairro..." value="${esc(cliente.endereco || '')}">
     </div>
-    <hr style="margin:14px 0;border:none;border-top:1px solid #e2e1d8">
+    <hr style="margin:14px 0;border:none;border-top:1px solid var(--border)">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <label style="font-size:13px;font-weight:600;color:#333;margin:0">Ambientes</label>
+      <label style="font-size:13px;font-weight:600;color:var(--text);margin:0">Ambientes</label>
       <button class="btn btn-sm" id="cr-add-amb" type="button">+ Adicionar ambiente</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="flex:2;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
-      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
-      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
+      <span style="flex:2;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px">Ambiente</span>
+      <span style="flex:1;min-width:110px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-230px">Valor (R$)</span>
+      <span style="flex:0 0 90px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-left:-70px">Dias</span>
       <span style="flex:0 0 auto;visibility:hidden;padding:4px 10px;font-size:12px">&times;</span>
     </div>
     <div id="cr-ambientes"></div>

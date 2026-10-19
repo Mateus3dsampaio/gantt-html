@@ -21,7 +21,7 @@ export function renderClientes(clientes) {
     const total = c.total_ambientes || 0;
     const pend  = c.pendentes_ambientes || 0;
     const ambBadge = total > 0
-      ? ` <span style="font-size:11px;color:#888">(${pend}/${total} amb.)</span>`
+      ? ` <span style="font-size:11px;color:var(--text-muted)">(${pend}/${total} amb.)</span>`
       : '';
     return `
     <tr>
@@ -29,12 +29,12 @@ export function renderClientes(clientes) {
       <td>
         ${c.telefone
           ? `${esc(c.telefone)} <a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" title="Abrir WhatsApp" style="color:#25D366;text-decoration:none;font-size:15px">&#128233;</a>`
-          : '<span style="color:#bbb">—</span>'}
+          : '<span style="color:var(--text-ghost)">—</span>'}
       </td>
       <td>
         ${c.endereco
           ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.endereco)}" target="_blank" title="Abrir no Google Maps" style="color:inherit;text-decoration:none">${esc(c.endereco)} &#128205;</a>`
-          : '<span style="color:#bbb">—</span>'}
+          : '<span style="color:var(--text-ghost)">—</span>'}
       </td>
       <td>
         <button class="btn btn-sm" onclick="window._clientes.abrirModal(${c.id})">Editar</button>
@@ -57,16 +57,16 @@ export function abrirModalCliente(id, clientes) {
       <input type="text" id="f-cl-nome" value="${cl ? esc(cl.nome) : ''}" placeholder="Ex: João Silva">
     </div>
     <div class="form-group">
-      <label>Telefone <span style="font-weight:400;color:#aaa">(opcional)</span></label>
+      <label>Telefone <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
       <input type="text" id="f-cl-tel" value="${cl ? esc(cl.telefone || '') : ''}" placeholder="(88) 99999-9999">
     </div>
     <div class="form-group">
-      <label>Endereço <span style="font-weight:400;color:#aaa">(opcional)</span></label>
+      <label>Endereço <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
       <input type="text" id="f-cl-end" value="${cl ? esc(cl.endereco || '') : ''}" placeholder="Rua, número, bairro...">
     </div>
     <div class="form-group">
-      <label>Observações <span style="font-weight:400;color:#aaa">(opcional)</span></label>
-      <textarea id="f-cl-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid #d4d3ca;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${cl ? esc(cl.observacoes || '') : ''}</textarea>
+      <label>Observações <span style="font-weight:400;color:var(--text-faint)">(opcional)</span></label>
+      <textarea id="f-cl-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);color:var(--text);font-size:13px;font-family:inherit;resize:vertical">${cl ? esc(cl.observacoes || '') : ''}</textarea>
     </div>`;
   document.getElementById('modal-rodape').innerHTML = `
     <button class="btn" onclick="window._modal.fechar()">Cancelar</button>

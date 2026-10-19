@@ -74,7 +74,7 @@ function renderPendentes(grupos) {
     const ambientesJson = esc(JSON.stringify(g.ambientes));
     html += `<div class="pendentes-grupo">
       <div class="pendentes-grupo-header">
-        ${esc(g.cliente_nome)} <span style="color:#999;font-weight:400">(${label})</span>${valorGrupoHtml}
+        ${esc(g.cliente_nome)} <span style="color:var(--text-muted);font-weight:400">(${label})</span>${valorGrupoHtml}
         <button class="btn btn-sm pendentes-editar-btn" onclick="window._cadastroRapido.editarCliente(${g.cliente_id}, JSON.parse(this.dataset.ambientes))" data-ambientes="${ambientesJson}" title="Editar ambientes">&#9998;</button>
       </div>`;
 

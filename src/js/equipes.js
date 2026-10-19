@@ -22,7 +22,7 @@ export function renderEquipes(equipes) {
       <td>
         <span class="equipe-cor-dot" style="background:${esc(e.cor || '#3B82F6')}"></span>
         ${esc(e.nome)}
-        ${e.ativa === 0 ? '<span style="color:#bbb;font-size:11px"> (inativa)</span>' : ''}
+        ${e.ativa === 0 ? '<span style="color:var(--text-ghost);font-size:11px"> (inativa)</span>' : ''}
       </td>
       <td>${esc(e.cor || '#3B82F6')}</td>
       <td>

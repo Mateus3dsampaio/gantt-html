@@ -3,16 +3,13 @@
  * Depende de: api.js
  * Requer Chart.js carregado globalmente (embutido no HTML).
  *
- * Dois temas visuais: "neon" (A) e "aurora" (B), escolhidos no próprio dashboard.
+ * Visual: usa o tema global (A · Neon / B · Aurora) definido em theme.js.
  */
 
 import { API } from './api.js';
 
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-const CHAVE_TEMA = 'gantt_dash_tema';
-const TEMAS = ['neon', 'aurora'];
 
 let _charts   = [];       // instâncias Chart.js ativas
 let _dados    = null;     // última resposta do dashboard (para re-render ao trocar tema/modo)
@@ -47,17 +44,8 @@ export function initDashboard() {
     mesFimEl.appendChild(fim);
   });
 
-  // Tema (A · Neon / B · Aurora) — lembrado neste navegador
-  let tema = 'neon';
-  try { const t = localStorage.getItem(CHAVE_TEMA); if (TEMAS.includes(t)) tema = t; } catch { /* ignora */ }
-  aplicarTema(tema);
-  document.querySelectorAll('.dx-temas button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      aplicarTema(btn.dataset.dxTema);
-      try { localStorage.setItem(CHAVE_TEMA, btn.dataset.dxTema); } catch { /* ignora */ }
-      if (_dados) renderTudo();
-    });
-  });
+  // Tema global (botão da barra lateral): redesenha os gráficos com as novas cores
+  window.addEventListener('gantt:tema-alterado', () => { if (_dados) renderTudo(); });
 
   // Alternância % / R$ da pizza
   document.querySelectorAll('#dx-toggle-pizza button').forEach(btn => {
@@ -67,12 +55,6 @@ export function initDashboard() {
       if (_dados) renderPizza(_dados);
     });
   });
-}
-
-function aplicarTema(tema) {
-  document.getElementById('dx').dataset.tema = tema;
-  document.querySelectorAll('.dx-temas button').forEach(b =>
-    b.classList.toggle('on', b.dataset.dxTema === tema));
 }
 
 function marcarToggle() {

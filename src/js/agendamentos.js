@@ -168,11 +168,11 @@ function _construirModalEditar(ag, equipes) {
     <div id="modal-alert"></div>
     <div class="form-group">
       <label>Cliente</label>
-      <div style="padding:8px 0;font-size:13px;color:#333;font-weight:500">${esc(ag.cliente_nome)}</div>
+      <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.cliente_nome)}</div>
     </div>
     <div class="form-group">
       <label>Ambiente</label>
-      <div style="padding:8px 0;font-size:13px;color:#333;font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? 's' : ''})${ag.tipo === 'assistencia' ? ' — 🔧 Assistência' : ''}</div>
+      <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? 's' : ''})${ag.tipo === 'assistencia' ? ' — 🔧 Assistência' : ''}</div>
     </div>
     <div class="form-group">
       <label>Equipe</label>
@@ -192,7 +192,7 @@ function _construirModalEditar(ag, equipes) {
     </div>
     <div class="form-group" id="f-ag-obs-group">
       <label>Observações</label>
-      <textarea id="f-ag-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid #d4d3ca;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${esc(ag.observacoes || '')}</textarea>
+      <textarea id="f-ag-obs" rows="2" style="width:100%;padding:8px 11px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);color:var(--text);font-size:13px;font-family:inherit;resize:vertical">${esc(ag.observacoes || '')}</textarea>
     </div>`;
 
   document.getElementById('modal-rodape').innerHTML = `
@@ -222,7 +222,7 @@ function onStatusChange() {
   if (obsGroup) {
     if (st === 'Aguardando Assistência') {
       obsGroup.querySelector('label').textContent = 'Observações (descreva o problema)';
-      obsGroup.querySelector('label').style.color = '#A32D2D';
+      obsGroup.querySelector('label').style.color = '#ff9a9a';
     } else {
       obsGroup.querySelector('label').textContent = 'Observações';
       obsGroup.querySelector('label').style.color = '';

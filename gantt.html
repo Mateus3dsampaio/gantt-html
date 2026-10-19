@@ -679,89 +679,104 @@ body.dark .badge-assistencia { background: #2a1414; color: #ff8080; border-color
 .settings-status--error { color: #A32D2D; }
 
 /* ══════════════════════════════
-   DASHBOARD
+   DASHBOARD (temas A · Neon e B · Aurora)
 ══════════════════════════════ */
-.dash-filters {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+.dx {
+  --dx-bg: #0a0e1f; --dx-glow1: rgba(124,58,237,.28); --dx-glow2: rgba(6,182,212,.18);
+  --dx-card: rgba(255,255,255,.045); --dx-card-border: rgba(255,255,255,.09); --dx-shadow: 0 10px 40px rgba(0,0,0,.35);
+  --dx-text: #eef0ff; --dx-muted: #8e97c2; --dx-grid: rgba(255,255,255,.07);
+  --dx-k1: linear-gradient(135deg,#7c3aed,#d946ef); --dx-k2: linear-gradient(135deg,#06b6d4,#3b82f6); --dx-k3: linear-gradient(135deg,#f59e0b,#ef4444);
+  --dx-accent: linear-gradient(135deg,#7c3aed,#06b6d4); --dx-chip: rgba(255,255,255,.07);
+  --dx-ring: #0a0e1f;
+  color: var(--dx-text);
+  background:
+    radial-gradient(900px 500px at 6% -8%, var(--dx-glow1), transparent 60%),
+    radial-gradient(800px 500px at 100% 8%, var(--dx-glow2), transparent 60%),
+    var(--dx-bg);
+  border-radius: 20px;
+  padding: 24px 26px 28px;
 }
-.dash-filters label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .4px;
-}
-.dash-filters select {
-  padding: 6px 10px;
-  border: 1px solid var(--border-input);
-  border-radius: 6px;
-  font-size: 13px;
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.dash-kpis {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-.kpi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px 18px;
-}
-.kpi-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .4px;
-  margin-bottom: 8px;
-}
-.kpi-valor {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.2;
-}
-.kpi-sub {
-  font-size: 12px;
-  color: var(--text-faint);
-  margin-top: 4px;
+.dx[data-tema="aurora"] {
+  --dx-bg: #12061f; --dx-glow1: rgba(236,72,153,.25); --dx-glow2: rgba(168,85,247,.22);
+  --dx-card: rgba(255,255,255,.05); --dx-card-border: rgba(236,72,153,.18);
+  --dx-text: #fbeeff; --dx-muted: #b496cf; --dx-grid: rgba(255,255,255,.07);
+  --dx-k1: linear-gradient(135deg,#ec4899,#f97316); --dx-k2: linear-gradient(135deg,#a855f7,#6366f1); --dx-k3: linear-gradient(135deg,#22d3ee,#84cc16);
+  --dx-accent: linear-gradient(135deg,#ec4899,#f97316); --dx-chip: rgba(255,255,255,.08);
+  --dx-ring: #12061f;
 }
 
-.dash-chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px 20px;
-  margin-bottom: 16px;
+.dx-topo { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.dx-titulo { font-size: 24px; font-weight: 700; letter-spacing: -.3px; }
+.dx-temas { display: inline-flex; background: var(--dx-chip); border-radius: 999px; padding: 3px; }
+.dx-temas button, .dx-toggle button {
+  border: none; background: transparent; color: var(--dx-muted); font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 999px; cursor: pointer; font-family: inherit;
 }
-.dash-chart-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-2);
-  margin-bottom: 14px;
+.dx-temas button.on, .dx-toggle button.on { background: var(--dx-accent); color: #fff; }
+
+.dx .dash-filters { margin-bottom: 18px; }
+.dx .dash-filters label { color: var(--dx-muted); }
+.dx .dash-filters select {
+  background: var(--dx-card); border: 1px solid var(--dx-card-border); color: var(--dx-text);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit;
 }
-.dash-chart-wrap {
-  position: relative;
-  height: 260px;
-}
-.dash-chart-wrap--short {
-  height: 160px;
+.dx .dash-filters select option { color: #1a1a18; }
+.dx-btn-aplicar {
+  background: var(--dx-accent); border: none; color: #fff; font-weight: 600; cursor: pointer;
+  border-radius: 10px; padding: 8px 16px; font-size: 13px; font-family: inherit;
+  box-shadow: 0 6px 18px rgba(99,102,241,.35);
 }
 
-.dash-bottom {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.dx-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.dx-kpi { border-radius: 18px; padding: 18px 20px; color: #fff; position: relative; overflow: hidden; box-shadow: var(--dx-shadow); min-height: 104px; }
+.dx-kpi::after  { content: ''; position: absolute; right: -30px; top: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.14); }
+.dx-kpi::before { content: ''; position: absolute; right: 30px; bottom: -50px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.08); }
+.dx-kpi--1 { background: var(--dx-k1); } .dx-kpi--2 { background: var(--dx-k2); } .dx-kpi--3 { background: var(--dx-k3); }
+.dx-kpi-rot { font-size: 11px; letter-spacing: .8px; text-transform: uppercase; opacity: .9; font-weight: 600; position: relative; z-index: 1; }
+.dx-kpi-val { font-size: 30px; font-weight: 700; margin-top: 8px; letter-spacing: -.5px; position: relative; z-index: 1; }
+.dx-kpi-sub { font-size: 12px; opacity: .9; margin-top: 2px; position: relative; z-index: 1; }
+
+.dx-card {
+  background: var(--dx-card); border: 1px solid var(--dx-card-border); border-radius: 18px;
+  padding: 18px 20px; box-shadow: var(--dx-shadow); backdrop-filter: blur(10px);
+}
+.dx-card-titulo { margin: 0 0 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dx-card-titulo > span:first-child::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--dx-accent);
+  display: inline-block; margin-right: 8px;
+}
+.dx-linha { display: grid; gap: 16px; margin-bottom: 16px; }
+.dx-linha--2 { grid-template-columns: 1.65fr 1fr; }
+.dx-linha--3 { grid-template-columns: 1fr 1.25fr; }
+.dx-linha > .dx-card { min-width: 0; }
+.dx-wrap { position: relative; height: 290px; }
+.dx-wrap--curto { height: 250px; }
+.dx-legenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--dx-muted); margin-bottom: 8px; }
+.dx-legenda span { display: flex; align-items: center; gap: 6px; }
+.dx-legenda i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.dx-toggle { display: inline-flex; background: var(--dx-chip); border-radius: 999px; padding: 3px; }
+.dx-pizza { display: grid; grid-template-columns: minmax(140px, 180px) minmax(0, 1fr); align-items: center; gap: 12px; }
+.dx-wrap--pizza { height: 230px; }
+.dx-lg { display: flex; flex-direction: column; gap: 9px; font-size: 13px; }
+.dx-lg > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dx-lg .n { display: flex; align-items: center; gap: 8px; }
+.dx-lg i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.dx-lg b { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+
+.dx .data-table { width: 100%; border-collapse: collapse; font-size: 13px; background: transparent; }
+.dx .data-table th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--dx-muted);
+  font-weight: 600; padding: 0 8px 10px; background: transparent; border: none;
+}
+.dx .data-table td { padding: 11px 8px; border: none; border-top: 1px solid var(--dx-grid); font-variant-numeric: tabular-nums; color: var(--dx-text); background: transparent; }
+.dx .data-table tr:hover td { background: transparent; }
+.dx-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+.dx-mini { height: 4px; border-radius: 4px; background: var(--dx-grid); margin-top: 6px; overflow: hidden; }
+.dx-mini span { display: block; height: 100%; border-radius: 4px; }
+
+@media (max-width: 1100px) {
+  .dx-kpis, .dx-linha--2, .dx-linha--3, .dx-pizza { grid-template-columns: 1fr; }
 }
 
 /* ══════════════════════════════
@@ -1153,41 +1168,66 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
 
   <!-- ── DASHBOARD ── -->
   <div id="view-dashboard" class="view">
-    <div class="page-header">
-      <div class="page-title">Dashboard de Equipes</div>
-    </div>
+    <div class="dx" id="dx" data-tema="neon">
 
-    <div class="dash-filters">
-      <label>Ano</label>
-      <select id="dash-ano"></select>
-      <label>De</label>
-      <select id="dash-mes-ini"></select>
-      <label>Até</label>
-      <select id="dash-mes-fim"></select>
-      <button class="btn btn-primary" onclick="window._dashboard.atualizar()">Aplicar</button>
-    </div>
-
-    <div id="dash-kpis" class="dash-kpis"></div>
-
-    <div class="dash-chart-card">
-      <h3 class="dash-chart-title">R$ Concluído por Mês</h3>
-      <div class="dash-chart-wrap"><canvas id="chart-mensal"></canvas></div>
-    </div>
-
-    <div class="dash-bottom">
-      <div class="dash-chart-card">
-        <h3 class="dash-chart-title">Acumulado no Período</h3>
-        <div class="dash-chart-wrap dash-chart-wrap--short"><canvas id="chart-acumulado"></canvas></div>
+      <div class="dx-topo">
+        <div class="dx-titulo">Dashboard de Equipes</div>
+        <div class="dx-temas" title="Tema do dashboard">
+          <button type="button" data-dx-tema="neon">A · Neon</button>
+          <button type="button" data-dx-tema="aurora">B · Aurora</button>
+        </div>
       </div>
-      <div class="dash-chart-card">
-        <h3 class="dash-chart-title">Desempenho por Equipe</h3>
-        <div id="dash-tabela"></div>
-      </div>
-    </div>
 
-    <div class="dash-chart-card">
-      <h3 class="dash-chart-title">Evolução da Média Diária (R$/dia por mês)</h3>
-      <div class="dash-chart-wrap"><canvas id="chart-media-dia"></canvas></div>
+      <div class="dash-filters dx-filtros">
+        <label>Ano</label>
+        <select id="dash-ano"></select>
+        <label>De</label>
+        <select id="dash-mes-ini"></select>
+        <label>Até</label>
+        <select id="dash-mes-fim"></select>
+        <button class="dx-btn-aplicar" onclick="window._dashboard.atualizar()">Aplicar</button>
+      </div>
+
+      <div id="dash-kpis" class="dx-kpis"></div>
+
+      <div class="dx-linha dx-linha--2">
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>R$ Concluído por Mês</span></h3>
+          <div class="dx-legenda" id="dx-leg-mensal"></div>
+          <div class="dx-wrap"><canvas id="chart-mensal"></canvas></div>
+        </div>
+        <div class="dx-card">
+          <h3 class="dx-card-titulo">
+            <span>Participação no Total Concluído</span>
+            <span class="dx-toggle" id="dx-toggle-pizza">
+              <button type="button" data-modo="pct" class="on">%</button>
+              <button type="button" data-modo="valor">R$</button>
+            </span>
+          </h3>
+          <div class="dx-pizza">
+            <div class="dx-wrap dx-wrap--pizza"><canvas id="chart-pizza"></canvas></div>
+            <div class="dx-lg" id="dx-leg-pizza"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dx-linha dx-linha--3">
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>Acumulado no Período</span></h3>
+          <div class="dx-wrap dx-wrap--curto"><canvas id="chart-acumulado"></canvas></div>
+        </div>
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>Desempenho por Equipe</span></h3>
+          <div id="dash-tabela"></div>
+        </div>
+      </div>
+
+      <div class="dx-card">
+        <h3 class="dx-card-titulo"><span>Evolução da Média Diária (R$/dia por mês)</span></h3>
+        <div class="dx-legenda" id="dx-leg-media"></div>
+        <div class="dx-wrap"><canvas id="chart-media-dia"></canvas></div>
+      </div>
+
     </div>
   </div>
 
@@ -2661,9 +2701,11 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     "Novembro",
     "Dezembro"
   ];
-  var _chartMensal = null;
-  var _chartAcumulado = null;
-  var _chartMediaDia = null;
+  var CHAVE_TEMA = "gantt_dash_tema";
+  var TEMAS = ["neon", "aurora"];
+  var _charts = [];
+  var _dados = null;
+  var _modoPizza = "pct";
   function initDashboard() {
     const anoEl = document.getElementById("dash-ano");
     const mesIniEl = document.getElementById("dash-mes-ini");
@@ -2688,65 +2730,149 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       if (i === 11) fim.selected = true;
       mesFimEl.appendChild(fim);
     });
+    let tema = "neon";
+    try {
+      const t = localStorage.getItem(CHAVE_TEMA);
+      if (TEMAS.includes(t)) tema = t;
+    } catch {
+    }
+    aplicarTema(tema);
+    document.querySelectorAll(".dx-temas button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        aplicarTema(btn.dataset.dxTema);
+        try {
+          localStorage.setItem(CHAVE_TEMA, btn.dataset.dxTema);
+        } catch {
+        }
+        if (_dados) renderTudo();
+      });
+    });
+    document.querySelectorAll("#dx-toggle-pizza button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        _modoPizza = btn.dataset.modo;
+        marcarToggle();
+        if (_dados) renderPizza(_dados);
+      });
+    });
+  }
+  function aplicarTema(tema) {
+    document.getElementById("dx").dataset.tema = tema;
+    document.querySelectorAll(".dx-temas button").forEach((b) => b.classList.toggle("on", b.dataset.dxTema === tema));
+  }
+  function marcarToggle() {
+    document.querySelectorAll("#dx-toggle-pizza button").forEach((b) => b.classList.toggle("on", b.dataset.modo === _modoPizza));
   }
   async function atualizarDashboard() {
     const ano = parseInt(document.getElementById("dash-ano").value);
     const mesIni = parseInt(document.getElementById("dash-mes-ini").value);
     const mesFim = parseInt(document.getElementById("dash-mes-fim").value);
-    const dados = await API.relatorios.dashboard(ano, mesIni, mesFim);
-    renderKPIs(dados.kpis);
-    renderChartMensal(dados);
-    renderChartAcumulado(dados);
-    renderTabela(dados.acumulado);
-    renderChartMediaDia(dados);
+    _dados = await API.relatorios.dashboard(ano, mesIni, mesFim);
+    renderTudo();
+  }
+  function renderTudo() {
+    _charts.forEach((c) => c.destroy());
+    _charts = [];
+    const dx = document.getElementById("dx");
+    const estilo = getComputedStyle(dx);
+    const ink = {
+      texto: estilo.getPropertyValue("--dx-text").trim(),
+      muted: estilo.getPropertyValue("--dx-muted").trim(),
+      grid: estilo.getPropertyValue("--dx-grid").trim(),
+      anel: estilo.getPropertyValue("--dx-ring").trim()
+    };
+    Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.color = ink.muted;
+    renderKPIs(_dados.kpis);
+    renderLegendas(_dados);
+    renderChartMensal(_dados, ink);
+    renderPizza(_dados);
+    renderChartAcumulado(_dados, ink);
+    renderTabela(_dados.acumulado);
+    renderChartMediaDia(_dados, ink);
   }
   function fmtBRL2(v) {
     return (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  }
+  function fmtPct(v) {
+    return v.toFixed(1).replace(".", ",") + "%";
+  }
+  function hexToRgb(h) {
+    const n = parseInt(h.replace("#", "").slice(0, 6), 16);
+    return [n >> 16 & 255, n >> 8 & 255, n & 255];
+  }
+  function misturar(h, alvo, p) {
+    const a = hexToRgb(h);
+    return "#" + a.map((c, i) => Math.round(c + (alvo[i] - c) * p).toString(16).padStart(2, "0")).join("");
+  }
+  function comAlpha(h, a) {
+    const [r, g, b] = hexToRgb(h);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+  function corTema(h) {
+    const [r, g, b] = hexToRgb(h);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return lum < 0.42 ? misturar(h, [255, 255, 255], 0.45) : h;
+  }
+  function gradV(ctx, area, cor) {
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, misturar(cor, [255, 255, 255], 0.25));
+    g.addColorStop(1, cor);
+    return g;
+  }
+  function gradH(ctx, area, cor) {
+    const g = ctx.createLinearGradient(area.left, 0, area.right, 0);
+    g.addColorStop(0, comAlpha(cor, 0.55));
+    g.addColorStop(1, misturar(cor, [255, 255, 255], 0.2));
+    return g;
   }
   function renderKPIs(kpis) {
     const el = document.getElementById("dash-kpis");
     const destaque = kpis.destaque;
     const maiorDia = kpis.maior_media_dia;
     el.innerHTML = `
-    <div class="kpi-card">
-      <div class="kpi-label">Total Conclu\xEDdo no Per\xEDodo</div>
-      <div class="kpi-valor">${fmtBRL2(kpis.total_geral)}</div>
+    <div class="dx-kpi dx-kpi--1">
+      <div class="dx-kpi-rot">Total Conclu\xEDdo no Per\xEDodo</div>
+      <div class="dx-kpi-val">${fmtBRL2(kpis.total_geral)}</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">\u{1F3C6} Equipe Destaque</div>
-      <div class="kpi-valor" style="color:${destaque?.cor || "#1a1a18"}">
-        ${destaque ? destaque.nome : "\u2014"}
-      </div>
-      <div class="kpi-sub">${destaque ? fmtBRL2(destaque.total) + " acumulado" : ""}</div>
+    <div class="dx-kpi dx-kpi--2">
+      <div class="dx-kpi-rot">\u{1F3C6} Equipe Destaque</div>
+      <div class="dx-kpi-val">${destaque ? destaque.nome : "\u2014"}</div>
+      <div class="dx-kpi-sub">${destaque ? fmtBRL2(destaque.total) + " acumulado" : ""}</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">\u26A1 Maior M\xE9dia / Dia</div>
-      <div class="kpi-valor" style="color:${maiorDia?.cor || "#1a1a18"}">
-        ${maiorDia ? maiorDia.nome : "\u2014"}
-      </div>
-      <div class="kpi-sub">${maiorDia ? fmtBRL2(maiorDia.media_dia) + " / dia" : ""}</div>
+    <div class="dx-kpi dx-kpi--3">
+      <div class="dx-kpi-rot">\u26A1 Maior M\xE9dia / Dia</div>
+      <div class="dx-kpi-val">${maiorDia ? maiorDia.nome : "\u2014"}</div>
+      <div class="dx-kpi-sub">${maiorDia ? fmtBRL2(maiorDia.media_dia) + " / dia" : ""}</div>
     </div>
   `;
   }
-  function renderChartMensal(dados) {
+  function renderLegendas(dados) {
+    const html = dados.equipes.map((eq) => `<span><i style="background:${corTema(eq.cor)}"></i>${eq.nome}</span>`).join("");
+    document.getElementById("dx-leg-mensal").innerHTML = html;
+    document.getElementById("dx-leg-media").innerHTML = html;
+  }
+  function renderChartMensal(dados, ink) {
     const ctx = document.getElementById("chart-mensal").getContext("2d");
-    if (_chartMensal) _chartMensal.destroy();
     const labels = dados.meses.map((m) => m.label);
-    const datasets = dados.equipes.map((eq) => ({
-      label: eq.nome,
-      data: dados.meses.map((m) => m.dados[eq.id] || 0),
-      backgroundColor: eq.cor,
-      borderRadius: 4,
-      borderSkipped: false
-    }));
-    _chartMensal = new Chart(ctx, {
+    const datasets = dados.equipes.map((eq) => {
+      const cor = corTema(eq.cor);
+      return {
+        label: eq.nome,
+        data: dados.meses.map((m) => m.dados[eq.id] || 0),
+        backgroundColor: (c) => c.chart.chartArea ? gradV(c.chart.ctx, c.chart.chartArea, cor) : cor,
+        borderRadius: 6,
+        borderSkipped: false,
+        maxBarThickness: 16
+      };
+    });
+    _charts.push(new Chart(ctx, {
       type: "bar",
       data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: "top", labels: { boxWidth: 12, font: { size: 12 } } },
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: (ctx2) => ` ${ctx2.dataset.label}: ${fmtBRL2(ctx2.raw)}`
@@ -2754,41 +2880,114 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           }
         },
         scales: {
-          x: { grid: { display: false } },
+          x: { grid: { display: false }, border: { display: false } },
           y: {
-            ticks: {
-              callback: (v) => fmtBRL2(v),
-              font: { size: 11 }
-            },
-            grid: { color: "#f0efe9" }
+            border: { display: false },
+            ticks: { callback: (v) => fmtBRL2(v), font: { size: 11 } },
+            grid: { color: ink.grid }
           }
         }
       }
-    });
+    }));
   }
-  function renderChartAcumulado(dados) {
+  function renderPizza(dados) {
+    const el = document.getElementById("chart-pizza");
+    const existente = Chart.getChart(el);
+    if (existente) {
+      _charts = _charts.filter((c) => c !== existente);
+      existente.destroy();
+    }
+    marcarToggle();
+    const estilo = getComputedStyle(document.getElementById("dx"));
+    const texto = estilo.getPropertyValue("--dx-text").trim();
+    const muted = estilo.getPropertyValue("--dx-muted").trim();
+    const anel = estilo.getPropertyValue("--dx-ring").trim();
+    const lista = dados.acumulado;
+    const total = lista.reduce((s, a) => s + a.total, 0);
+    const pct = (v) => total > 0 ? v / total * 100 : 0;
+    const mostra = (v) => _modoPizza === "pct" ? fmtPct(pct(v)) : fmtBRL2(v);
+    const centro = {
+      id: "centro",
+      afterDraw(ch) {
+        const { ctx, chartArea: a } = ch;
+        const x = (a.left + a.right) / 2, y = (a.top + a.bottom) / 2;
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.fillStyle = muted;
+        ctx.font = "12px Segoe UI, sans-serif";
+        ctx.fillText("Total conclu\xEDdo", x, y - 10);
+        ctx.fillStyle = texto;
+        ctx.font = "700 17px Segoe UI, sans-serif";
+        ctx.fillText(fmtBRL2(total), x, y + 13);
+        ctx.restore();
+      }
+    };
+    _charts.push(new Chart(el.getContext("2d"), {
+      type: "doughnut",
+      data: {
+        labels: lista.map((a) => a.nome),
+        datasets: [{
+          data: lista.map((a) => a.total),
+          backgroundColor: lista.map((a) => corTema(a.cor)),
+          borderWidth: 3,
+          borderColor: anel,
+          spacing: 2,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        cutout: "70%",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${mostra(ctx.raw)}` } }
+        }
+      },
+      plugins: [centro]
+    }));
+    document.getElementById("dx-leg-pizza").innerHTML = lista.map((a) => `
+    <div>
+      <span class="n"><i style="background:${corTema(a.cor)}"></i>${a.nome}</span>
+      <b>${mostra(a.total)}</b>
+    </div>`).join("");
+  }
+  function renderChartAcumulado(dados, ink) {
     const ctx = document.getElementById("chart-acumulado").getContext("2d");
-    if (_chartAcumulado) _chartAcumulado.destroy();
     const sorted = [...dados.acumulado].sort((a, b) => b.total - a.total);
     const labels = sorted.map((e) => e.nome);
     const values = sorted.map((e) => e.total);
-    const colors = sorted.map((e) => e.cor);
-    _chartAcumulado = new Chart(ctx, {
+    const colors = sorted.map((e) => corTema(e.cor));
+    const valorNaPonta = {
+      id: "valorNaPonta",
+      afterDatasetsDraw(ch) {
+        const { ctx: c } = ch;
+        c.save();
+        c.fillStyle = ink.texto;
+        c.font = "600 11px Segoe UI, sans-serif";
+        c.textBaseline = "middle";
+        ch.getDatasetMeta(0).data.forEach((barra, i) => c.fillText(fmtBRL2(values[i]), barra.x + 8, barra.y));
+        c.restore();
+      }
+    };
+    _charts.push(new Chart(ctx, {
       type: "bar",
       data: {
         labels,
         datasets: [{
           label: "Acumulado",
           data: values,
-          backgroundColor: colors,
-          borderRadius: 4,
-          borderSkipped: false
+          backgroundColor: (c) => c.chart.chartArea ? gradH(c.chart.ctx, c.chart.chartArea, colors[c.dataIndex]) : colors[c.dataIndex],
+          borderRadius: 8,
+          borderSkipped: false,
+          maxBarThickness: 20
         }]
       },
       options: {
         indexAxis: "y",
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { right: 72 } },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -2798,40 +2997,51 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           }
         },
         scales: {
-          x: {
-            ticks: { callback: (v) => fmtBRL2(v), font: { size: 11 } },
-            grid: { color: "#f0efe9" }
-          },
-          y: { grid: { display: false } }
+          x: { display: false, grid: { display: false } },
+          y: { grid: { display: false }, border: { display: false }, ticks: { color: ink.texto, font: { size: 12 } } }
         }
-      }
-    });
-  }
-  function renderChartMediaDia(dados) {
-    const ctx = document.getElementById("chart-media-dia").getContext("2d");
-    if (_chartMediaDia) _chartMediaDia.destroy();
-    const labels = dados.meses.map((m) => m.label);
-    const datasets = dados.equipes.map((eq) => ({
-      label: eq.nome,
-      data: dados.meses.map((m) => m.media_dia[eq.id] ?? null),
-      borderColor: eq.cor,
-      backgroundColor: eq.cor + "22",
-      pointBackgroundColor: eq.cor,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-      borderWidth: 2.5,
-      tension: 0.35,
-      spanGaps: false
-      // quebra a linha onde não há dados
+      },
+      plugins: [valorNaPonta]
     }));
-    _chartMediaDia = new Chart(ctx, {
+  }
+  function renderChartMediaDia(dados, ink) {
+    const ctx = document.getElementById("chart-media-dia").getContext("2d");
+    const labels = dados.meses.map((m) => m.label);
+    const datasets = dados.equipes.map((eq) => {
+      const cor = corTema(eq.cor);
+      return {
+        label: eq.nome,
+        data: dados.meses.map((m) => m.media_dia[eq.id] ?? null),
+        borderColor: cor,
+        pointBackgroundColor: cor,
+        pointBorderColor: ink.anel,
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        borderWidth: 2.5,
+        tension: 0.38,
+        spanGaps: false,
+        // quebra a linha onde não há dados
+        fill: true,
+        backgroundColor: (c) => {
+          const ch = c.chart;
+          if (!ch.chartArea) return "transparent";
+          const g = ch.ctx.createLinearGradient(0, ch.chartArea.top, 0, ch.chartArea.bottom);
+          g.addColorStop(0, comAlpha(cor, 0.22));
+          g.addColorStop(1, comAlpha(cor, 0));
+          return g;
+        }
+      };
+    });
+    _charts.push(new Chart(ctx, {
       type: "line",
       data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { position: "top", labels: { boxWidth: 12, font: { size: 12 } } },
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: (ctx2) => ctx2.raw !== null ? ` ${ctx2.dataset.label}: ${fmtBRL2(ctx2.raw)}/dia` : ` ${ctx2.dataset.label}: sem dados`
@@ -2839,36 +3049,36 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           }
         },
         scales: {
-          x: { grid: { display: false } },
+          x: { grid: { display: false }, border: { display: false } },
           y: {
-            ticks: {
-              callback: (v) => fmtBRL2(v),
-              font: { size: 11 }
-            },
-            grid: { color: "#f0efe9" }
+            border: { display: false },
+            ticks: { callback: (v) => fmtBRL2(v), font: { size: 11 } },
+            grid: { color: ink.grid }
           }
         }
       }
-    });
+    }));
   }
   function renderTabela(acumulado) {
     const el = document.getElementById("dash-tabela");
     if (!acumulado.length) {
-      el.innerHTML = '<p style="color:#aaa;font-size:13px">Nenhum dado no per\xEDodo.</p>';
+      el.innerHTML = '<p style="color:var(--dx-muted);font-size:13px">Nenhum dado no per\xEDodo.</p>';
       return;
     }
-    const rows = acumulado.map((eq, i) => `
+    const maior = Math.max(...acumulado.map((a) => a.total), 1);
+    const rows = acumulado.map((eq) => {
+      const cor = corTema(eq.cor);
+      return `
     <tr>
-      <td>
-        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${eq.cor};margin-right:6px;vertical-align:middle"></span>
-        ${eq.nome}
+      <td><span class="dx-dot" style="background:${cor}"></span>${eq.nome}</td>
+      <td>${fmtBRL2(eq.total)}
+        <div class="dx-mini"><span style="width:${eq.total / maior * 100}%;background:linear-gradient(90deg,${comAlpha(cor, 0.5)},${cor})"></span></div>
       </td>
-      <td>${fmtBRL2(eq.total)}</td>
       <td>${fmtBRL2(eq.media_mensal)}</td>
       <td>${fmtBRL2(eq.media_dia)}</td>
       <td>${eq.mes_pico}</td>
-    </tr>
-  `).join("");
+    </tr>`;
+    }).join("");
     el.innerHTML = `
     <table class="data-table">
       <thead>
@@ -2953,19 +3163,19 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
 
   // src/js/theme.js
   var STORAGE_KEY = "agenda-tema";
-  function aplicarTema(dark) {
+  function aplicarTema2(dark) {
     document.body.classList.toggle("dark", dark);
     document.getElementById("theme-icon").textContent = dark ? "\u2600\uFE0F" : "\u{1F319}";
     document.getElementById("theme-label").textContent = dark ? "Modo claro" : "Modo escuro";
   }
   function initTheme() {
     const dark = localStorage.getItem(STORAGE_KEY) === "dark";
-    aplicarTema(dark);
+    aplicarTema2(dark);
   }
   function toggle2() {
     const dark = !document.body.classList.contains("dark");
     localStorage.setItem(STORAGE_KEY, dark ? "dark" : "light");
-    aplicarTema(dark);
+    aplicarTema2(dark);
   }
   window._theme = { toggle: toggle2 };
 
@@ -4036,10 +4246,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       API.agendamentos.listar(),
       API.feriados.listar()
     ]);
-    renderTudo();
+    renderTudo2();
     carregarPendentes();
   }
-  function renderTudo() {
+  function renderTudo2() {
     popularFiltroEquipe(estado.equipes);
     renderGantt();
     renderResumoEquipes();

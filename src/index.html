@@ -205,41 +205,66 @@
 
   <!-- ── DASHBOARD ── -->
   <div id="view-dashboard" class="view">
-    <div class="page-header">
-      <div class="page-title">Dashboard de Equipes</div>
-    </div>
+    <div class="dx" id="dx" data-tema="neon">
 
-    <div class="dash-filters">
-      <label>Ano</label>
-      <select id="dash-ano"></select>
-      <label>De</label>
-      <select id="dash-mes-ini"></select>
-      <label>Até</label>
-      <select id="dash-mes-fim"></select>
-      <button class="btn btn-primary" onclick="window._dashboard.atualizar()">Aplicar</button>
-    </div>
-
-    <div id="dash-kpis" class="dash-kpis"></div>
-
-    <div class="dash-chart-card">
-      <h3 class="dash-chart-title">R$ Concluído por Mês</h3>
-      <div class="dash-chart-wrap"><canvas id="chart-mensal"></canvas></div>
-    </div>
-
-    <div class="dash-bottom">
-      <div class="dash-chart-card">
-        <h3 class="dash-chart-title">Acumulado no Período</h3>
-        <div class="dash-chart-wrap dash-chart-wrap--short"><canvas id="chart-acumulado"></canvas></div>
+      <div class="dx-topo">
+        <div class="dx-titulo">Dashboard de Equipes</div>
+        <div class="dx-temas" title="Tema do dashboard">
+          <button type="button" data-dx-tema="neon">A · Neon</button>
+          <button type="button" data-dx-tema="aurora">B · Aurora</button>
+        </div>
       </div>
-      <div class="dash-chart-card">
-        <h3 class="dash-chart-title">Desempenho por Equipe</h3>
-        <div id="dash-tabela"></div>
-      </div>
-    </div>
 
-    <div class="dash-chart-card">
-      <h3 class="dash-chart-title">Evolução da Média Diária (R$/dia por mês)</h3>
-      <div class="dash-chart-wrap"><canvas id="chart-media-dia"></canvas></div>
+      <div class="dash-filters dx-filtros">
+        <label>Ano</label>
+        <select id="dash-ano"></select>
+        <label>De</label>
+        <select id="dash-mes-ini"></select>
+        <label>Até</label>
+        <select id="dash-mes-fim"></select>
+        <button class="dx-btn-aplicar" onclick="window._dashboard.atualizar()">Aplicar</button>
+      </div>
+
+      <div id="dash-kpis" class="dx-kpis"></div>
+
+      <div class="dx-linha dx-linha--2">
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>R$ Concluído por Mês</span></h3>
+          <div class="dx-legenda" id="dx-leg-mensal"></div>
+          <div class="dx-wrap"><canvas id="chart-mensal"></canvas></div>
+        </div>
+        <div class="dx-card">
+          <h3 class="dx-card-titulo">
+            <span>Participação no Total Concluído</span>
+            <span class="dx-toggle" id="dx-toggle-pizza">
+              <button type="button" data-modo="pct" class="on">%</button>
+              <button type="button" data-modo="valor">R$</button>
+            </span>
+          </h3>
+          <div class="dx-pizza">
+            <div class="dx-wrap dx-wrap--pizza"><canvas id="chart-pizza"></canvas></div>
+            <div class="dx-lg" id="dx-leg-pizza"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dx-linha dx-linha--3">
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>Acumulado no Período</span></h3>
+          <div class="dx-wrap dx-wrap--curto"><canvas id="chart-acumulado"></canvas></div>
+        </div>
+        <div class="dx-card">
+          <h3 class="dx-card-titulo"><span>Desempenho por Equipe</span></h3>
+          <div id="dash-tabela"></div>
+        </div>
+      </div>
+
+      <div class="dx-card">
+        <h3 class="dx-card-titulo"><span>Evolução da Média Diária (R$/dia por mês)</span></h3>
+        <div class="dx-legenda" id="dx-leg-media"></div>
+        <div class="dx-wrap"><canvas id="chart-media-dia"></canvas></div>
+      </div>
+
     </div>
   </div>
 

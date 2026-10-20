@@ -885,7 +885,7 @@ select optgroup {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 16px;
+  width: min(16px, 25%);   /* em blocos de 1 dia sobra área central */
   z-index: 6;
   opacity: 0;
   transition: opacity 0.15s;
@@ -2542,7 +2542,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     if (!_resize) return;
     const resize = _resize;
     _resize = null;
-    if (!resize.ativo) return;
+    if (!resize.ativo) {
+      if (!window._modoAgendar) abrirModalEditarAgendamento(resize.agId);
+      return;
+    }
     const N = diasNoMes(ganttAno, ganttMes);
     const dayIdx = _dayIdxFromX(e.clientX);
     if (dayIdx === null) {

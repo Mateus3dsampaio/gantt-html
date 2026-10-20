@@ -879,7 +879,7 @@ select optgroup {
   position: absolute;
   top: 0;
   height: 100%;
-  width: 16px;
+  width: min(16px, 25%);   /* em blocos de 1 dia sobra área central */
   z-index: 6;
   opacity: 0;
   transition: opacity 0.15s;

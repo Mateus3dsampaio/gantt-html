@@ -587,7 +587,11 @@ async function _onResizeEnd(e) {
   const resize = _resize;
   _resize = null;
 
-  if (!resize.ativo) return;
+  if (!resize.ativo) {
+    // Clique na alça sem arrastar = clique no bloco (importante em ambientes de 1 dia)
+    if (!window._modoAgendar) abrirModalEditarAgendamento(resize.agId);
+    return;
+  }
 
   const N = diasNoMes(ganttAno, ganttMes);
   const dayIdx = _dayIdxFromX(e.clientX);

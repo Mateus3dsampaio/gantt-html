@@ -21,6 +21,7 @@ import { carregarPendentes } from './pendentes.js';
 import './cadastro_rapido.js';
 import { initDashboard, atualizarDashboard } from './dashboard.js';
 import { initSettings } from './settings.js';
+import { initPagamentos, atualizarPagamentos } from './pagamentos.js';
 import { initTheme } from './theme.js';
 import { renderFeriados, abrirModalFeriado } from './feriados.js';
 import { instalarRotas } from './backend/rotas.js';
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initDashboard();
   initSettings();
+  initPagamentos();
   setupNav();
   setupTabs();
   setupModalOverlay();
@@ -88,6 +90,7 @@ function setupNav() {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById('view-' + el.dataset.view).classList.add('active');
       if (el.dataset.view === 'dashboard') atualizarDashboard();
+      if (el.dataset.view === 'pagamentos') atualizarPagamentos();
     });
   });
 }

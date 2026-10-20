@@ -351,6 +351,39 @@ svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width:
 .tab-btn:hover  { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--accent-solid); font-weight: 500; }
 
+/* ══════════════════════════════
+   PAGAMENTOS
+══════════════════════════════ */
+.pg-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.pg-filtros select {
+  background: var(--field); border: 1px solid var(--border-input); color: var(--text);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit;
+}
+.pg-ref { color: var(--text-muted); font-size: 12px; }
+.pg-recordes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.pg-recorde {
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--cor);
+  border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+}
+.pg-recorde-nome { font-size: 12px; color: var(--text-3); font-weight: 600; }
+.pg-recorde-val  { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.pg-recorde-mes  { font-size: 12px; color: var(--text-muted); }
+.pg-total { font-size: 14px; margin-bottom: 12px; }
+.pg-total strong { font-size: 18px; }
+.pg-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.pg-card-topo { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.pg-card-nome { font-weight: 600; font-size: 14px; }
+.pg-card-pct  { margin-left: auto; font-size: 13px; color: var(--text-2); }
+.pg-card-total { font-weight: 700; font-size: 16px; min-width: 110px; text-align: right; }
+.pg-num { text-align: right !important; white-space: nowrap; }
+.pg-pct {
+  width: 56px; text-align: right; padding: 4px 6px; font-size: 13px; font-family: inherit;
+  background: var(--field); border: 1px solid var(--border-input); color: var(--text); border-radius: 8px;
+}
+.pg-pct:focus { outline: none; border-color: var(--accent-solid); }
+.pg-pct--aj { border-color: var(--accent-solid); font-weight: 700; }
+.pg-pct-sinal { color: var(--text-muted); font-size: 12px; }
+
 /* Listas suspensas: o popup nativo não herda o fundo translúcido dos campos,
    então usa fundo sólido do tema + texto claro. */
 select { color-scheme: dark; }

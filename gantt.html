@@ -357,6 +357,39 @@ svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width:
 .tab-btn:hover  { color: var(--text); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--accent-solid); font-weight: 500; }
 
+/* ══════════════════════════════
+   PAGAMENTOS
+══════════════════════════════ */
+.pg-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.pg-filtros select {
+  background: var(--field); border: 1px solid var(--border-input); color: var(--text);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; font-family: inherit;
+}
+.pg-ref { color: var(--text-muted); font-size: 12px; }
+.pg-recordes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.pg-recorde {
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--cor);
+  border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow);
+}
+.pg-recorde-nome { font-size: 12px; color: var(--text-3); font-weight: 600; }
+.pg-recorde-val  { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.pg-recorde-mes  { font-size: 12px; color: var(--text-muted); }
+.pg-total { font-size: 14px; margin-bottom: 12px; }
+.pg-total strong { font-size: 18px; }
+.pg-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.pg-card-topo { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.pg-card-nome { font-weight: 600; font-size: 14px; }
+.pg-card-pct  { margin-left: auto; font-size: 13px; color: var(--text-2); }
+.pg-card-total { font-weight: 700; font-size: 16px; min-width: 110px; text-align: right; }
+.pg-num { text-align: right !important; white-space: nowrap; }
+.pg-pct {
+  width: 56px; text-align: right; padding: 4px 6px; font-size: 13px; font-family: inherit;
+  background: var(--field); border: 1px solid var(--border-input); color: var(--text); border-radius: 8px;
+}
+.pg-pct:focus { outline: none; border-color: var(--accent-solid); }
+.pg-pct--aj { border-color: var(--accent-solid); font-weight: 700; }
+.pg-pct-sinal { color: var(--text-muted); font-size: 12px; }
+
 /* Listas suspensas: o popup nativo não herda o fundo translúcido dos campos,
    então usa fundo sólido do tema + texto claro. */
 select { color-scheme: dark; }
@@ -1018,6 +1051,9 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     <div class="nav-item" data-view="dashboard">
       <span class="nav-icon">📊</span> Dashboard
     </div>
+    <div class="nav-item" data-view="pagamentos">
+      <span class="nav-icon">💰</span> Pagamentos
+    </div>
     <div class="nav-item" data-view="settings">
       <span class="nav-icon">⚙️</span> Configurações
     </div>
@@ -1174,6 +1210,21 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   </div>
 
   <!-- ── SETTINGS ── -->
+  <!-- ── PAGAMENTOS ── -->
+  <div id="view-pagamentos" class="view">
+    <div class="page-header">
+      <div class="page-title">Pagamentos</div>
+    </div>
+    <div class="dash-filters pg-filtros">
+      <label>Mês de pagamento</label>
+      <select id="pg-mes"></select>
+      <select id="pg-ano"></select>
+      <span id="pg-ref" class="pg-ref"></span>
+    </div>
+    <div id="pg-recordes" class="pg-recordes"></div>
+    <div id="pg-conteudo"></div>
+  </div>
+
   <div id="view-settings" class="view">
     <div class="page-header">
       <div class="page-title">Configurações</div>
@@ -3539,6 +3590,132 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     }
   }
 
+  // src/js/pagamentos.js
+  var MESES2 = ["Janeiro", "Fevereiro", "Mar\xE7o", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  var brl2 = (n) => (n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  var pctTxt = (n) => String(n).replace(".", ",");
+  function initPagamentos() {
+    const hoje = /* @__PURE__ */ new Date();
+    const selMes = document.getElementById("pg-mes");
+    const selAno = document.getElementById("pg-ano");
+    selMes.innerHTML = MESES2.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
+    selMes.value = hoje.getMonth() + 1;
+    const a0 = hoje.getFullYear();
+    selAno.innerHTML = [a0 - 2, a0 - 1, a0, a0 + 1].map((a) => `<option value="${a}">${a}</option>`).join("");
+    selAno.value = a0;
+    selMes.addEventListener("change", atualizarPagamentos);
+    selAno.addEventListener("change", atualizarPagamentos);
+  }
+  async function atualizarPagamentos() {
+    const ano = document.getElementById("pg-ano").value;
+    const mes = document.getElementById("pg-mes").value;
+    const d = await fetch(`/api/pagamentos?ano=${ano}&mes=${mes}`).then((r) => r.json());
+    render(d);
+  }
+  function render(d) {
+    const ref = d.referencia;
+    document.getElementById("pg-ref").textContent = `Base: finalizados em ${MESES2[ref.mes - 1]} de ${ref.ano}`;
+    document.getElementById("pg-recordes").innerHTML = d.recordes.map((r) => `
+    <div class="pg-recorde" style="--cor:${esc(r.cor || "#8b5cf6")}">
+      <div class="pg-recorde-nome">\u{1F3C6} ${esc(r.nome)}</div>
+      <div class="pg-recorde-val">${r.recorde ? brl2(r.recorde.valor) : "\u2014"}</div>
+      <div class="pg-recorde-mes">${r.recorde ? esc(r.recorde.label) : "sem recebimentos"}</div>
+    </div>`).join("");
+    const cartoes = d.equipes.map((e) => cartaoEquipe(d, e)).join("");
+    const func = cartaoFuncionarias(d);
+    document.getElementById("pg-conteudo").innerHTML = `
+    <div class="pg-total">Total a pagar em ${MESES2[d.mes - 1]}/${d.ano}: <strong>${brl2(d.total_geral)}</strong></div>
+    ${cartoes || '<div class="empty-state">Nenhuma equipe de montagem com finaliza\xE7\xF5es neste per\xEDodo.</div>'}
+    ${func}`;
+  }
+  function campoPct(valor, padrao, ajustado, attrs, titulo) {
+    return `<input type="text" inputmode="decimal" class="pg-pct${ajustado ? " pg-pct--aj" : ""}"
+            value="${pctTxt(valor)}" title="${esc(titulo)}" ${attrs}> <span class="pg-pct-sinal">%</span>`;
+  }
+  function cartaoEquipe(d, e) {
+    const linhas = e.ambientes.map((a) => `
+    <tr>
+      <td>${esc(a.cliente)}</td>
+      <td>${esc(a.ambiente)}</td>
+      <td>${esc(a.finalizado_em.split("-").reverse().join("/"))}</td>
+      <td class="pg-num">${brl2(a.valor)}</td>
+      <td class="pg-num">${campoPct(
+      a.pct_usado,
+      e.pct,
+      a.pct_ambiente != null,
+      `onchange="window._pagamentos.ambiente(${a.agendamento_id}, this.value)"`,
+      "Percentual s\xF3 deste ambiente. Apague para voltar ao % da equipe."
+    )}</td>
+      <td class="pg-num">${brl2(a.comissao)}</td>
+    </tr>`).join("");
+    return `
+    <div class="pg-card">
+      <div class="pg-card-topo">
+        <span class="equipe-cor-dot" style="background:${esc(e.cor || "#3B82F6")}"></span>
+        <span class="pg-card-nome">${esc(e.nome)}</span>
+        <span class="pg-card-pct">Comiss\xE3o:
+          ${campoPct(
+      e.pct,
+      e.pct_padrao,
+      e.pct_ajustado,
+      `onchange="window._pagamentos.comissao('${e.equipe_id}', this.value)"`,
+      `Padr\xE3o: ${pctTxt(e.pct_padrao)}%. Vale s\xF3 para este m\xEAs de pagamento. Apague para voltar ao padr\xE3o.`
+    )}
+        </span>
+        <span class="pg-card-total">${brl2(e.total_pagar)}</span>
+      </div>
+      ${e.ambientes.length ? `
+      <table class="data-table">
+        <thead><tr><th>Cliente</th><th>Ambiente</th><th>Finalizado</th>
+          <th class="pg-num">Valor</th><th class="pg-num">%</th><th class="pg-num">Comiss\xE3o</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>` : '<div class="empty-state">Nada finalizado por esta equipe no per\xEDodo.</div>'}
+    </div>`;
+  }
+  function cartaoFuncionarias(d) {
+    const linhas = d.funcionarias.map((f) => `
+    <tr>
+      <td>${esc(f.nome)}</td>
+      <td class="pg-num">${brl2(f.base)}</td>
+      <td class="pg-num">${campoPct(
+      f.pct,
+      f.pct_padrao,
+      f.pct_ajustado,
+      `onchange="window._pagamentos.comissao('${f.chave}', this.value)"`,
+      `Padr\xE3o: ${pctTxt(f.pct_padrao)}%. Vale s\xF3 para este m\xEAs de pagamento. Apague para voltar ao padr\xE3o.`
+    )}</td>
+      <td class="pg-num">${brl2(f.total_pagar)}</td>
+    </tr>`).join("");
+    return `
+    <div class="pg-card">
+      <div class="pg-card-topo">
+        <span class="pg-card-nome">Funcion\xE1rias \u2014 sobre o total montado por todas as equipes</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Nome</th><th class="pg-num">Total montado (todas as equipes)</th>
+          <th class="pg-num">%</th><th class="pg-num">Comiss\xE3o</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>`;
+  }
+  async function salvar(url, corpo) {
+    const res = await fetch(url, jsonReq("PUT", corpo));
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      alert(e.error || "N\xE3o foi poss\xEDvel salvar.");
+    }
+    await atualizarPagamentos();
+  }
+  window._pagamentos = {
+    comissao: (quem, pct) => salvar("/api/pagamentos/comissao", {
+      ano: document.getElementById("pg-ano").value,
+      mes: document.getElementById("pg-mes").value,
+      quem,
+      pct
+    }),
+    ambiente: (agendamento_id, pct) => salvar("/api/pagamentos/ambiente", { agendamento_id, pct })
+  };
+
   // src/js/theme.js
   var STORAGE_KEY = "agenda-tema-visual";
   var TEMAS = {
@@ -3669,6 +3846,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   var IDB_STORE = "handles";
   var db = { equipes: [], clientes: [], ambientes: [], feriados: [], feriados_equipes: [], agendamentos: [] };
   var meta = { ultimo_backup: null };
+  var pagamentos = { comissoes: {}, ambientes: {} };
   var seq = {};
   var handle = null;
   var ultimaMod = 0;
@@ -3691,6 +3869,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   function serializar() {
     const obj = { version: 1, exported_at: (/* @__PURE__ */ new Date()).toISOString(), meta, seq };
     for (const t of TABELAS) obj[t] = db[t];
+    obj.pagamentos = pagamentos;
     return obj;
   }
   function carregarObjeto(obj) {
@@ -3701,6 +3880,8 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       r.ativa = r.ativa ?? 1;
     }
     meta.ultimo_backup = obj.meta?.ultimo_backup ?? null;
+    pagamentos.comissoes = obj.pagamentos?.comissoes ?? {};
+    pagamentos.ambientes = obj.pagamentos?.ambientes ?? {};
     recalcularSeq(obj.seq);
   }
   function dadosVazios() {
@@ -3712,7 +3893,8 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       ambientes: [],
       feriados: [],
       feriados_equipes: [],
-      agendamentos: []
+      agendamentos: [],
+      pagamentos: { comissoes: {}, ambientes: {} }
     };
   }
   function elStatus() {
@@ -4511,6 +4693,134 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       }
     }];
   }
+  var COMISSAO_PADRAO = 4;
+  var COMISSAO_RICARDO = 3;
+  var FUNCIONARIAS = [
+    { chave: "tayla", nome: "Tayla", pct: 1.5 },
+    { chave: "bruna", nome: "Bruna", pct: 1 }
+  ];
+  var chaveMes = (ano, mes) => `${ano}-${String(mes).padStart(2, "0")}`;
+  var arred2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+  function pctPadraoEquipe(eq) {
+    return str(eq.nome).toLowerCase() === "ricardo" ? COMISSAO_RICARDO : COMISSAO_PADRAO;
+  }
+  function concluidosPorMesPagamento() {
+    var _a;
+    const mapa = {};
+    for (const a of db.agendamentos) {
+      if (a.status !== "Conclu\xEDdo" || a.tipo && a.tipo !== "montagem") continue;
+      const amb = db.ambientes.find((m2) => m2.id === a.ambiente_id);
+      if (!amb) continue;
+      const dia = somarDias(a.data_fim, -1);
+      let y = parseInt(dia.slice(0, 4), 10), m = parseInt(dia.slice(5, 7), 10) + 1;
+      if (m > 12) {
+        m = 1;
+        y++;
+      }
+      const cli = db.clientes.find((c) => c.id === amb.cliente_id);
+      (mapa[_a = chaveMes(y, m)] ?? (mapa[_a] = [])).push({
+        agendamento_id: a.id,
+        equipe_id: a.equipe_id,
+        ambiente: amb.nome,
+        cliente: cli ? cli.nome : "",
+        valor: amb.valor || 0,
+        finalizado_em: dia
+      });
+    }
+    return mapa;
+  }
+  function comissoesEquipes(chave, itens) {
+    const ajustes = pagamentos.comissoes[chave] || {};
+    return db.equipes.map((eq) => {
+      const padrao = pctPadraoEquipe(eq);
+      const pct = ajustes[eq.id] ?? padrao;
+      const ambientes = itens.filter((i) => i.equipe_id === eq.id).map((i) => {
+        const pctAmb = pagamentos.ambientes[i.agendamento_id];
+        const pctUsado = pctAmb ?? pct;
+        return { ...i, pct_ambiente: pctAmb ?? null, pct_usado: pctUsado, comissao: arred2(i.valor * pctUsado / 100) };
+      });
+      return {
+        equipe_id: eq.id,
+        nome: eq.nome,
+        cor: eq.cor,
+        ativa: eq.ativa,
+        pct,
+        pct_padrao: padrao,
+        pct_ajustado: ajustes[eq.id] != null,
+        total_montado: arred2(ambientes.reduce((s, i) => s + i.valor, 0)),
+        total_pagar: arred2(ambientes.reduce((s, i) => s + i.comissao, 0)),
+        ambientes
+      };
+    });
+  }
+  function pagamentosMes({ query }) {
+    const hoje = /* @__PURE__ */ new Date();
+    const ano = parseInt(query.ano ?? hoje.getFullYear(), 10);
+    const mes = parseInt(query.mes ?? hoje.getMonth() + 1, 10);
+    const chave = chaveMes(ano, mes);
+    const mapa = concluidosPorMesPagamento();
+    const equipes = comissoesEquipes(chave, mapa[chave] || []).filter((e) => e.ativa === 1 || e.ambientes.length).sort((a, b) => cmp(a.nome, b.nome));
+    const baseTotal = arred2(equipes.reduce((s, e) => s + e.total_montado, 0));
+    const ajustes = pagamentos.comissoes[chave] || {};
+    const funcionarias = FUNCIONARIAS.map((f) => {
+      const pct = ajustes[f.chave] ?? f.pct;
+      return {
+        chave: f.chave,
+        nome: f.nome,
+        pct,
+        pct_padrao: f.pct,
+        pct_ajustado: ajustes[f.chave] != null,
+        base: baseTotal,
+        total_pagar: arred2(baseTotal * pct / 100)
+      };
+    });
+    const recordes = {};
+    for (const [ch, itens] of Object.entries(mapa)) {
+      for (const e of comissoesEquipes(ch, itens)) {
+        if (!e.ambientes.length) continue;
+        if (!recordes[e.equipe_id] || e.total_pagar > recordes[e.equipe_id].valor) {
+          const [y, m] = ch.split("-").map(Number);
+          recordes[e.equipe_id] = { valor: e.total_pagar, ano: y, mes: m, label: `${MESES_LABELS[m - 1]} ${y}` };
+        }
+      }
+    }
+    const referencia = mes === 1 ? { ano: ano - 1, mes: 12 } : { ano, mes: mes - 1 };
+    return [200, {
+      ano,
+      mes,
+      referencia,
+      equipes,
+      funcionarias,
+      base_total: baseTotal,
+      recordes: db.equipes.filter((e) => e.ativa === 1).sort((a, b) => cmp(a.nome, b.nome)).map((e) => ({ equipe_id: e.id, nome: e.nome, cor: e.cor, recorde: recordes[e.id] || null })),
+      total_geral: arred2(equipes.reduce((s, e) => s + e.total_pagar, 0) + funcionarias.reduce((s, f) => s + f.total_pagar, 0))
+    }];
+  }
+  function lerPct(v) {
+    if (v === null || v === void 0 || v === "") return null;
+    const n = parseFloat(String(v).replace(",", "."));
+    return n;
+  }
+  function pagamentosComissao({ body }) {
+    var _a;
+    const chave = chaveMes(parseInt(body.ano, 10), parseInt(body.mes, 10));
+    const quem = String(body.quem);
+    const pct = lerPct(body.pct);
+    if (pct !== null && (isNaN(pct) || pct < 0 || pct > 100)) return erro("Percentual inv\xE1lido.");
+    const mesAj = (_a = pagamentos.comissoes)[chave] ?? (_a[chave] = {});
+    if (pct === null) delete mesAj[quem];
+    else mesAj[quem] = pct;
+    if (!Object.keys(mesAj).length) delete pagamentos.comissoes[chave];
+    return ok();
+  }
+  function pagamentosAmbiente({ body }) {
+    const id = parseInt(body.agendamento_id, 10);
+    const pct = lerPct(body.pct);
+    if (pct !== null && (isNaN(pct) || pct < 0 || pct > 100)) return erro("Percentual inv\xE1lido.");
+    if (pct === null) delete pagamentos.ambientes[id];
+    else pagamentos.ambientes[id] = pct;
+    return ok();
+  }
   function settingsExport() {
     meta.ultimo_backup = (/* @__PURE__ */ new Date()).toISOString();
     const d = /* @__PURE__ */ new Date(), p = (n) => String(n).padStart(2, "0");
@@ -4525,13 +4835,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   }
   function settingsImport({ body }) {
     if (body.version !== 1) return erro("Arquivo inv\xE1lido ou vers\xE3o de backup incompat\xEDvel.");
-    const antes = structuredClone({ db, meta });
+    const antes = structuredClone({ db, meta, pagamentos });
     try {
       const novo = { ...body, meta: { ultimo_backup: meta.ultimo_backup } };
       carregarObjeto(novo);
     } catch (e) {
       for (const t of TABELAS) db[t] = antes.db[t];
       meta.ultimo_backup = antes.meta.ultimo_backup;
+      pagamentos.comissoes = antes.pagamentos.comissoes;
+      pagamentos.ambientes = antes.pagamentos.ambientes;
       return erro(`Erro ao importar dados: ${e.message}`, 500);
     }
     return ok();
@@ -4562,6 +4874,9 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     ["PUT", /^\/api\/feriados\/(\d+)$/, feriadosAtualizar],
     ["DELETE", /^\/api\/feriados\/(\d+)$/, feriadosExcluir],
     ["GET", /^\/api\/relatorios\/dashboard$/, relatoriosDashboard],
+    ["GET", /^\/api\/pagamentos$/, pagamentosMes],
+    ["PUT", /^\/api\/pagamentos\/comissao$/, pagamentosComissao],
+    ["PUT", /^\/api\/pagamentos\/ambiente$/, pagamentosAmbiente],
     ["GET", /^\/api\/settings\/export$/, settingsExport],
     ["POST", /^\/api\/settings\/import$/, settingsImport]
   ];
@@ -4628,6 +4943,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     initTheme();
     initDashboard();
     initSettings();
+    initPagamentos();
     setupNav();
     setupTabs();
     setupModalOverlay();
@@ -4662,6 +4978,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
         document.getElementById("view-" + el.dataset.view).classList.add("active");
         if (el.dataset.view === "dashboard") atualizarDashboard();
+        if (el.dataset.view === "pagamentos") atualizarPagamentos();
       });
     });
   }

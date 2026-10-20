@@ -37,6 +37,9 @@
     <div class="nav-item" data-view="dashboard">
       <span class="nav-icon">📊</span> Dashboard
     </div>
+    <div class="nav-item" data-view="pagamentos">
+      <span class="nav-icon">💰</span> Pagamentos
+    </div>
     <div class="nav-item" data-view="settings">
       <span class="nav-icon">⚙️</span> Configurações
     </div>
@@ -193,6 +196,21 @@
   </div>
 
   <!-- ── SETTINGS ── -->
+  <!-- ── PAGAMENTOS ── -->
+  <div id="view-pagamentos" class="view">
+    <div class="page-header">
+      <div class="page-title">Pagamentos</div>
+    </div>
+    <div class="dash-filters pg-filtros">
+      <label>Mês de pagamento</label>
+      <select id="pg-mes"></select>
+      <select id="pg-ano"></select>
+      <span id="pg-ref" class="pg-ref"></span>
+    </div>
+    <div id="pg-recordes" class="pg-recordes"></div>
+    <div id="pg-conteudo"></div>
+  </div>
+
   <div id="view-settings" class="view">
     <div class="page-header">
       <div class="page-title">Configurações</div>

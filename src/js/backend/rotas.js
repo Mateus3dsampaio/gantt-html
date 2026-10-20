@@ -7,7 +7,7 @@
  */
 
 import {
-  db, meta, TABELAS, proximoId, commit, serializar, carregarObjeto, ErroConflito,
+  db, meta, pagamentos, TABELAS, proximoId, commit, serializar, carregarObjeto, ErroConflito,
 } from './store.js';
 import {
   calcularDataFim, contarDiasUteis, carregarFeriadosEquipe, verificarConflito,
@@ -501,6 +501,131 @@ function relatoriosDashboard({ query }) {
   }];
 }
 
+// ── Pagamentos (comissões) ────────────────────────────────────────
+// Regra: o que foi finalizado em um mês (último dia = data_fim - 1) é pago no mês seguinte.
+// Não altera o dashboard, que continua baseado no mês de finalização.
+const COMISSAO_PADRAO = 4;
+const COMISSAO_RICARDO = 3;
+const FUNCIONARIAS = [
+  { chave: 'tayla', nome: 'Tayla', pct: 1.5 },
+  { chave: 'bruna', nome: 'Bruna', pct: 1 },
+];
+const chaveMes = (ano, mes) => `${ano}-${String(mes).padStart(2, '0')}`;
+const arred2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+
+function pctPadraoEquipe(eq) {
+  return str(eq.nome).toLowerCase() === 'ricardo' ? COMISSAO_RICARDO : COMISSAO_PADRAO;
+}
+
+/** Concluídos de montagem agrupados pelo mês de PAGAMENTO ("AAAA-MM"). */
+function concluidosPorMesPagamento() {
+  const mapa = {};
+  for (const a of db.agendamentos) {
+    if (a.status !== 'Concluído' || (a.tipo && a.tipo !== 'montagem')) continue;
+    const amb = db.ambientes.find(m => m.id === a.ambiente_id);
+    if (!amb) continue;
+    const dia = somarDias(a.data_fim, -1);
+    let y = parseInt(dia.slice(0, 4), 10), m = parseInt(dia.slice(5, 7), 10) + 1;
+    if (m > 12) { m = 1; y++; }
+    const cli = db.clientes.find(c => c.id === amb.cliente_id);
+    (mapa[chaveMes(y, m)] ??= []).push({
+      agendamento_id: a.id, equipe_id: a.equipe_id, ambiente: amb.nome,
+      cliente: cli ? cli.nome : '', valor: amb.valor || 0, finalizado_em: dia,
+    });
+  }
+  return mapa;
+}
+
+/** Comissão de cada equipe de montagem num mês de pagamento. */
+function comissoesEquipes(chave, itens) {
+  const ajustes = pagamentos.comissoes[chave] || {};
+  return db.equipes.map(eq => {
+    const padrao = pctPadraoEquipe(eq);
+    const pct = ajustes[eq.id] ?? padrao;
+    const ambientes = itens.filter(i => i.equipe_id === eq.id).map(i => {
+      const pctAmb = pagamentos.ambientes[i.agendamento_id];
+      const pctUsado = pctAmb ?? pct;
+      return { ...i, pct_ambiente: pctAmb ?? null, pct_usado: pctUsado, comissao: arred2(i.valor * pctUsado / 100) };
+    });
+    return {
+      equipe_id: eq.id, nome: eq.nome, cor: eq.cor, ativa: eq.ativa, pct, pct_padrao: padrao,
+      pct_ajustado: ajustes[eq.id] != null,
+      total_montado: arred2(ambientes.reduce((s, i) => s + i.valor, 0)),
+      total_pagar: arred2(ambientes.reduce((s, i) => s + i.comissao, 0)),
+      ambientes,
+    };
+  });
+}
+
+function pagamentosMes({ query }) {
+  const hoje = new Date();
+  const ano = parseInt(query.ano ?? hoje.getFullYear(), 10);
+  const mes = parseInt(query.mes ?? hoje.getMonth() + 1, 10);
+  const chave = chaveMes(ano, mes);
+  const mapa = concluidosPorMesPagamento();
+
+  const equipes = comissoesEquipes(chave, mapa[chave] || [])
+    .filter(e => e.ativa === 1 || e.ambientes.length)
+    .sort((a, b) => cmp(a.nome, b.nome));
+
+  // Funcionárias: % sobre o total montado por todas as equipes (mesmo mês de referência)
+  const baseTotal = arred2(equipes.reduce((s, e) => s + e.total_montado, 0));
+  const ajustes = pagamentos.comissoes[chave] || {};
+  const funcionarias = FUNCIONARIAS.map(f => {
+    const pct = ajustes[f.chave] ?? f.pct;
+    return {
+      chave: f.chave, nome: f.nome, pct, pct_padrao: f.pct, pct_ajustado: ajustes[f.chave] != null,
+      base: baseTotal, total_pagar: arred2(baseTotal * pct / 100),
+    };
+  });
+
+  // Recorde de recebimento (só equipes de montagem), varrendo todos os meses
+  const recordes = {};
+  for (const [ch, itens] of Object.entries(mapa)) {
+    for (const e of comissoesEquipes(ch, itens)) {
+      if (!e.ambientes.length) continue;
+      if (!recordes[e.equipe_id] || e.total_pagar > recordes[e.equipe_id].valor) {
+        const [y, m] = ch.split('-').map(Number);
+        recordes[e.equipe_id] = { valor: e.total_pagar, ano: y, mes: m, label: `${MESES_LABELS[m - 1]} ${y}` };
+      }
+    }
+  }
+  const referencia = mes === 1 ? { ano: ano - 1, mes: 12 } : { ano, mes: mes - 1 };
+  return [200, {
+    ano, mes, referencia, equipes, funcionarias, base_total: baseTotal,
+    recordes: db.equipes.filter(e => e.ativa === 1).sort((a, b) => cmp(a.nome, b.nome))
+      .map(e => ({ equipe_id: e.id, nome: e.nome, cor: e.cor, recorde: recordes[e.id] || null })),
+    total_geral: arred2(equipes.reduce((s, e) => s + e.total_pagar, 0) + funcionarias.reduce((s, f) => s + f.total_pagar, 0)),
+  }];
+}
+
+function lerPct(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = parseFloat(String(v).replace(',', '.'));
+  return n;
+}
+
+/** Define (ou limpa, com pct vazio) a comissão de uma pessoa num mês de pagamento. */
+function pagamentosComissao({ body }) {
+  const chave = chaveMes(parseInt(body.ano, 10), parseInt(body.mes, 10));
+  const quem = String(body.quem);
+  const pct = lerPct(body.pct);
+  if (pct !== null && (isNaN(pct) || pct < 0 || pct > 100)) return erro('Percentual inválido.');
+  const mesAj = (pagamentos.comissoes[chave] ??= {});
+  if (pct === null) delete mesAj[quem]; else mesAj[quem] = pct;
+  if (!Object.keys(mesAj).length) delete pagamentos.comissoes[chave];
+  return ok();
+}
+
+/** Define (ou limpa) o % de um ambiente específico (agendamento). */
+function pagamentosAmbiente({ body }) {
+  const id = parseInt(body.agendamento_id, 10);
+  const pct = lerPct(body.pct);
+  if (pct !== null && (isNaN(pct) || pct < 0 || pct > 100)) return erro('Percentual inválido.');
+  if (pct === null) delete pagamentos.ambientes[id]; else pagamentos.ambientes[id] = pct;
+  return ok();
+}
+
 // ── Configurações (backup) ────────────────────────────────────────
 function settingsExport() {
   meta.ultimo_backup = new Date().toISOString();
@@ -517,13 +642,15 @@ function settingsExport() {
 
 function settingsImport({ body }) {
   if (body.version !== 1) return erro('Arquivo inválido ou versão de backup incompatível.');
-  const antes = structuredClone({ db, meta });
+  const antes = structuredClone({ db, meta, pagamentos });
   try {
     const novo = { ...body, meta: { ultimo_backup: meta.ultimo_backup } };   // restaurar não conta como backup
     carregarObjeto(novo);
   } catch (e) {
     for (const t of TABELAS) db[t] = antes.db[t];
     meta.ultimo_backup = antes.meta.ultimo_backup;
+    pagamentos.comissoes = antes.pagamentos.comissoes;
+    pagamentos.ambientes = antes.pagamentos.ambientes;
     return erro(`Erro ao importar dados: ${e.message}`, 500);
   }
   return ok();
@@ -562,7 +689,11 @@ const ROTAS = [
 
   ['GET',    /^\/api\/relatorios\/dashboard$/,         relatoriosDashboard],
 
-  ['GET',    /^\/api\/settings\/export$/,              settingsExport],
+  ['GET',    /^\/api\/pagamentos$/,                    pagamentosMes],
+  ['PUT',    /^\/api\/pagamentos\/comissao$/,          pagamentosComissao],
+  ['PUT',    /^\/api\/pagamentos\/ambiente$/,          pagamentosAmbiente],
+
+  ['GET',    /^\/api\/settings\/export$/,            settingsExport],
   ['POST',   /^\/api\/settings\/import$/,              settingsImport],
 ];
 

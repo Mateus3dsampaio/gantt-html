@@ -18,6 +18,8 @@ const IDB_STORE   = 'handles';
 
 export const db   = { equipes: [], clientes: [], ambientes: [], feriados: [], feriados_equipes: [], agendamentos: [] };
 export const meta = { ultimo_backup: null };
+// Ajustes de pagamento: comissões por mês/pessoa e % por ambiente (agendamento)
+export const pagamentos = { comissoes: {}, ambientes: {} };
 let seq = {};
 
 let handle        = null;   // FileSystemFileHandle do dados.json
@@ -46,6 +48,7 @@ function recalcularSeq(seqSalvo = {}) {
 export function serializar() {
   const obj = { version: 1, exported_at: new Date().toISOString(), meta, seq };
   for (const t of TABELAS) obj[t] = db[t];
+  obj.pagamentos = pagamentos;
   return obj;
 }
 
@@ -55,12 +58,15 @@ export function carregarObjeto(obj) {
   for (const t of TABELAS) db[t] = Array.isArray(obj[t]) ? obj[t] : [];
   for (const r of db.equipes) { r.loja_id = r.loja_id ?? 1; r.ativa = r.ativa ?? 1; }
   meta.ultimo_backup = obj.meta?.ultimo_backup ?? null;
+  pagamentos.comissoes = obj.pagamentos?.comissoes ?? {};
+  pagamentos.ambientes = obj.pagamentos?.ambientes ?? {};
   recalcularSeq(obj.seq);
 }
 
 function dadosVazios() {
   return { version: 1, meta: { ultimo_backup: null }, equipes: [], clientes: [], ambientes: [],
-           feriados: [], feriados_equipes: [], agendamentos: [] };
+           feriados: [], feriados_equipes: [], agendamentos: [],
+           pagamentos: { comissoes: {}, ambientes: {} } };
 }
 
 // ── Indicador de status (barra lateral) ───────────────────────────

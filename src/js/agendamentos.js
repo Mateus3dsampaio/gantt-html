@@ -10,6 +10,11 @@ import { abrirModal, fecharModal, alertaModal } from './modal.js';
 
 let editandoId  = null;
 let editandoFim = null; // último dia inclusivo do agendamento (YYYY-MM-DD)
+let eqPrincipal = null;  // equipe selecionada no modal de edição
+let eqExtras    = [];    // demais equipes que dividem o ambiente ('' = ainda sem escolha)
+let eqLista     = [];
+const fmtBRL = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+let valorTotal  = null;  // valor total do ambiente (antes da divisão)
 
 // ── Ordenação ─────────────────────────────────────────────────────
 let sortCol = 'data_inicio';
@@ -148,16 +153,17 @@ export function abrirModalEditarAgendamento(id) {
   const [y, m, d] = ag.data_fim.split('-').map(Number);
   const lastDay = new Date(y, m - 1, d - 1);
   editandoFim = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
+  eqLista     = equipes;
+  eqPrincipal = ag.equipe_id;
+  eqExtras    = agendamentos.filter(a => a.grupo_id === ag.grupo_id && a.id !== ag.id).map(a => a.equipe_id);
+  valorTotal  = ag.valor_total ?? null;
   _construirModalEditar(ag, equipes);
+  _renderEquipesModal();
   abrirModal();
 }
 
 function _construirModalEditar(ag, equipes) {
   document.getElementById('modal-titulo').textContent = 'Editar Agendamento';
-
-  const optEq = equipes.map(e =>
-    `<option value="${e.id}" ${ag.equipe_id === e.id ? 'selected' : ''}>${esc(e.nome)}</option>`
-  ).join('');
 
   const statusList = ['Agendado', 'Em andamento', 'Concluído', 'Aguardando Assistência'];
   const optSt = statusList.map(s =>
@@ -174,10 +180,7 @@ function _construirModalEditar(ag, equipes) {
       <label>Ambiente</label>
       <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? 's' : ''})${ag.tipo === 'assistencia' ? ' — 🔧 Assistência' : ''}</div>
     </div>
-    <div class="form-group">
-      <label>Equipe</label>
-      <select id="f-ag-eq">${optEq}</select>
-    </div>
+    <div class="form-group" id="f-ag-equipes"></div>
     <div class="form-group">
       <label>Data de início</label>
       <input type="date" id="f-ag-ini" value="${ag.data_inicio}">
@@ -200,6 +203,51 @@ function _construirModalEditar(ag, equipes) {
     <div style="flex:1"></div>
     <button class="btn" onclick="window._modal.fechar()">Cancelar</button>
     <button class="btn btn-primary" onclick="window._agendamentos.salvar()">Salvar</button>`;
+}
+
+// Equipes do agendamento: principal + as que dividem o ambiente (valor dividido por igual)
+function _optEquipes(selecionada, ocupadas) {
+  return eqLista
+    .filter(e => e.id === selecionada || !ocupadas.includes(e.id))
+    .map(e => `<option value="${e.id}" ${e.id === selecionada ? 'selected' : ''}>${esc(e.nome)}</option>`)
+    .join('');
+}
+
+function _renderEquipesModal() {
+  const box = document.getElementById('f-ag-equipes');
+  if (!box) return;
+  const usadas = [eqPrincipal, ...eqExtras].filter(Boolean);
+  const livres = eqLista.some(e => !usadas.includes(e.id)) && !eqExtras.includes('');
+
+  const extrasHtml = eqExtras.map((id, i) => `
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <select onchange="window._agendamentos.trocarExtra(${i}, this.value)" style="flex:1">
+        ${id === '' ? '<option value="">Selecione a equipe...</option>' : ''}${_optEquipes(id, usadas)}
+      </select>
+      <button type="button" class="btn" title="Remover equipe" onclick="window._agendamentos.removerExtra(${i})">✕</button>
+    </div>`).join('');
+
+  const escolhidas = [eqPrincipal, ...eqExtras].filter(id => id !== '' && id != null);
+  let divisaoHtml = '';
+  if (escolhidas.length > 1 && valorTotal != null) {
+    const parte = valorTotal / escolhidas.length;
+    divisaoHtml = `
+      <div style="margin-top:10px;padding:10px 12px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);font-size:13px">
+        <div style="opacity:.7;margin-bottom:4px">Valor dividido por igual (${fmtBRL(valorTotal)})</div>
+        ${escolhidas.map(id => {
+          const eq = eqLista.find(e => e.id === id);
+          return `<div style="display:flex;justify-content:space-between"><span>${esc(eq ? eq.nome : '')}</span><strong style="color:#4ade80">${fmtBRL(parte)}</strong></div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  box.innerHTML = `
+    <label>Equipe</label>
+    <div style="display:flex;gap:8px">
+      <select id="f-ag-eq" onchange="window._agendamentos.trocarPrincipal(this.value)" style="flex:1">${_optEquipes(eqPrincipal, usadas)}</select>
+      <button type="button" class="btn" ${livres ? '' : 'disabled'} onclick="window._agendamentos.adicionarEquipe()">+ Adicionar equipe</button>
+    </div>
+    ${extrasHtml}${divisaoHtml}`;
 }
 
 function onStatusChange() {
@@ -251,6 +299,7 @@ export async function salvarAgendamento() {
       data_inicio: ini,
       status:      st,
       observacoes: obs,
+      equipes_extras: eqExtras.filter(id => id !== ''),
     };
 
     if (st === 'Concluído') {
@@ -312,6 +361,10 @@ window._agendamentos = {
   excluir:        excluirAgendamento,
   excluirDoModal,
   onStatusChange,
+  adicionarEquipe() { eqExtras.push(''); _renderEquipesModal(); },
+  removerExtra(i)   { eqExtras.splice(i, 1); _renderEquipesModal(); },
+  trocarExtra(i, v) { eqExtras[i] = v === '' ? '' : parseInt(v); _renderEquipesModal(); },
+  trocarPrincipal(v) { eqPrincipal = parseInt(v); _renderEquipesModal(); },
   ordenar(col) {
     if (sortCol === col) {
       sortDir *= -1;

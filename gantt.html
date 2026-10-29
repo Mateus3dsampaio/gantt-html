@@ -1679,6 +1679,11 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   // src/js/agendamentos.js
   var editandoId = null;
   var editandoFim = null;
+  var eqPrincipal = null;
+  var eqExtras = [];
+  var eqLista = [];
+  var fmtBRL = (v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  var valorTotal = null;
   var sortCol = "data_inicio";
   var sortDir = 1;
   var COLUNAS = [
@@ -1786,14 +1791,16 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     const [y, m, d] = ag.data_fim.split("-").map(Number);
     const lastDay = new Date(y, m - 1, d - 1);
     editandoFim = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, "0")}-${String(lastDay.getDate()).padStart(2, "0")}`;
+    eqLista = equipes;
+    eqPrincipal = ag.equipe_id;
+    eqExtras = agendamentos.filter((a) => a.grupo_id === ag.grupo_id && a.id !== ag.id).map((a) => a.equipe_id);
+    valorTotal = ag.valor_total ?? null;
     _construirModalEditar(ag, equipes);
+    _renderEquipesModal();
     abrirModal();
   }
   function _construirModalEditar(ag, equipes) {
     document.getElementById("modal-titulo").textContent = "Editar Agendamento";
-    const optEq = equipes.map(
-      (e) => `<option value="${e.id}" ${ag.equipe_id === e.id ? "selected" : ""}>${esc(e.nome)}</option>`
-    ).join("");
     const statusList = ["Agendado", "Em andamento", "Conclu\xEDdo", "Aguardando Assist\xEAncia"];
     const optSt = statusList.map(
       (s) => `<option ${ag.status === s ? "selected" : ""}>${s}</option>`
@@ -1808,10 +1815,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       <label>Ambiente</label>
       <div style="padding:8px 0;font-size:13px;color:var(--text);font-weight:500">${esc(ag.ambiente_nome)} (${ag.duracao_dias} dia${ag.duracao_dias > 1 ? "s" : ""})${ag.tipo === "assistencia" ? " \u2014 \u{1F527} Assist\xEAncia" : ""}</div>
     </div>
-    <div class="form-group">
-      <label>Equipe</label>
-      <select id="f-ag-eq">${optEq}</select>
-    </div>
+    <div class="form-group" id="f-ag-equipes"></div>
     <div class="form-group">
       <label>Data de in\xEDcio</label>
       <input type="date" id="f-ag-ini" value="${ag.data_inicio}">
@@ -1833,6 +1837,42 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     <div style="flex:1"></div>
     <button class="btn" onclick="window._modal.fechar()">Cancelar</button>
     <button class="btn btn-primary" onclick="window._agendamentos.salvar()">Salvar</button>`;
+  }
+  function _optEquipes(selecionada, ocupadas) {
+    return eqLista.filter((e) => e.id === selecionada || !ocupadas.includes(e.id)).map((e) => `<option value="${e.id}" ${e.id === selecionada ? "selected" : ""}>${esc(e.nome)}</option>`).join("");
+  }
+  function _renderEquipesModal() {
+    const box = document.getElementById("f-ag-equipes");
+    if (!box) return;
+    const usadas = [eqPrincipal, ...eqExtras].filter(Boolean);
+    const livres = eqLista.some((e) => !usadas.includes(e.id)) && !eqExtras.includes("");
+    const extrasHtml = eqExtras.map((id, i) => `
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <select onchange="window._agendamentos.trocarExtra(${i}, this.value)" style="flex:1">
+        ${id === "" ? '<option value="">Selecione a equipe...</option>' : ""}${_optEquipes(id, usadas)}
+      </select>
+      <button type="button" class="btn" title="Remover equipe" onclick="window._agendamentos.removerExtra(${i})">\u2715</button>
+    </div>`).join("");
+    const escolhidas = [eqPrincipal, ...eqExtras].filter((id) => id !== "" && id != null);
+    let divisaoHtml = "";
+    if (escolhidas.length > 1 && valorTotal != null) {
+      const parte = valorTotal / escolhidas.length;
+      divisaoHtml = `
+      <div style="margin-top:10px;padding:10px 12px;border:1px solid var(--border-input);border-radius:10px;background:var(--field);font-size:13px">
+        <div style="opacity:.7;margin-bottom:4px">Valor dividido por igual (${fmtBRL(valorTotal)})</div>
+        ${escolhidas.map((id) => {
+        const eq = eqLista.find((e) => e.id === id);
+        return `<div style="display:flex;justify-content:space-between"><span>${esc(eq ? eq.nome : "")}</span><strong style="color:#4ade80">${fmtBRL(parte)}</strong></div>`;
+      }).join("")}
+      </div>`;
+    }
+    box.innerHTML = `
+    <label>Equipe</label>
+    <div style="display:flex;gap:8px">
+      <select id="f-ag-eq" onchange="window._agendamentos.trocarPrincipal(this.value)" style="flex:1">${_optEquipes(eqPrincipal, usadas)}</select>
+      <button type="button" class="btn" ${livres ? "" : "disabled"} onclick="window._agendamentos.adicionarEquipe()">+ Adicionar equipe</button>
+    </div>
+    ${extrasHtml}${divisaoHtml}`;
   }
   function onStatusChange() {
     const st = document.getElementById("f-ag-st")?.value;
@@ -1874,7 +1914,8 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         equipe_id: parseInt(eq),
         data_inicio: ini,
         status: st,
-        observacoes: obs
+        observacoes: obs,
+        equipes_extras: eqExtras.filter((id) => id !== "")
       };
       if (st === "Conclu\xEDdo") {
         payload.data_conclusao = document.getElementById("f-ag-conclusao")?.value;
@@ -1923,6 +1964,22 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     excluir: excluirAgendamento,
     excluirDoModal,
     onStatusChange,
+    adicionarEquipe() {
+      eqExtras.push("");
+      _renderEquipesModal();
+    },
+    removerExtra(i) {
+      eqExtras.splice(i, 1);
+      _renderEquipesModal();
+    },
+    trocarExtra(i, v) {
+      eqExtras[i] = v === "" ? "" : parseInt(v);
+      _renderEquipesModal();
+    },
+    trocarPrincipal(v) {
+      eqPrincipal = parseInt(v);
+      _renderEquipesModal();
+    },
     ordenar(col) {
       if (sortCol === col) {
         sortDir *= -1;
@@ -2097,7 +2154,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     renderGantt();
     renderResumoEquipes();
   }
-  function fmtBRL(v) {
+  function fmtBRL2(v) {
     return (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
   async function renderResumoEquipes() {
@@ -2116,15 +2173,15 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       </div>
       <div class="resumo-linha">
         <span class="resumo-label">Agendado</span>
-        <span class="resumo-valor">${fmtBRL(eq.agendado)}</span>
+        <span class="resumo-valor">${fmtBRL2(eq.agendado)}</span>
       </div>
       <div class="resumo-linha">
         <span class="resumo-label">Em andamento</span>
-        <span class="resumo-valor">${fmtBRL(eq.em_andamento)}</span>
+        <span class="resumo-valor">${fmtBRL2(eq.em_andamento)}</span>
       </div>
       <div class="resumo-linha">
         <span class="resumo-label">Conclu\xEDdo</span>
-        <span class="resumo-valor">${fmtBRL(eq.concluido)}</span>
+        <span class="resumo-valor">${fmtBRL2(eq.concluido)}</span>
       </div>
     </div>
   `).join("");
@@ -3222,7 +3279,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     renderTabela(_dados.acumulado);
     renderChartMediaDia(_dados, ink);
   }
-  function fmtBRL2(v) {
+  function fmtBRL3(v) {
     return (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
   }
   function fmtPct(v) {
@@ -3264,17 +3321,17 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     el.innerHTML = `
     <div class="dx-kpi dx-kpi--1">
       <div class="dx-kpi-rot">Total Conclu\xEDdo no Per\xEDodo</div>
-      <div class="dx-kpi-val">${fmtBRL2(kpis.total_geral)}</div>
+      <div class="dx-kpi-val">${fmtBRL3(kpis.total_geral)}</div>
     </div>
     <div class="dx-kpi dx-kpi--2">
       <div class="dx-kpi-rot">\u{1F3C6} Equipe Destaque</div>
       <div class="dx-kpi-val">${destaque ? destaque.nome : "\u2014"}</div>
-      <div class="dx-kpi-sub">${destaque ? fmtBRL2(destaque.total) + " acumulado" : ""}</div>
+      <div class="dx-kpi-sub">${destaque ? fmtBRL3(destaque.total) + " acumulado" : ""}</div>
     </div>
     <div class="dx-kpi dx-kpi--3">
       <div class="dx-kpi-rot">\u26A1 Maior M\xE9dia / Dia</div>
       <div class="dx-kpi-val">${maiorDia ? maiorDia.nome : "\u2014"}</div>
-      <div class="dx-kpi-sub">${maiorDia ? fmtBRL2(maiorDia.media_dia) + " / dia" : ""}</div>
+      <div class="dx-kpi-sub">${maiorDia ? fmtBRL3(maiorDia.media_dia) + " / dia" : ""}</div>
     </div>
   `;
   }
@@ -3307,7 +3364,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx2) => ` ${ctx2.dataset.label}: ${fmtBRL2(ctx2.raw)}`
+              label: (ctx2) => ` ${ctx2.dataset.label}: ${fmtBRL3(ctx2.raw)}`
             }
           }
         },
@@ -3315,7 +3372,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           x: { grid: { display: false }, border: { display: false } },
           y: {
             border: { display: false },
-            ticks: { callback: (v) => fmtBRL2(v), font: { size: 11 } },
+            ticks: { callback: (v) => fmtBRL3(v), font: { size: 11 } },
             grid: { color: ink.grid }
           }
         }
@@ -3337,7 +3394,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     const lista = dados.acumulado;
     const total = lista.reduce((s, a) => s + a.total, 0);
     const pct = (v) => total > 0 ? v / total * 100 : 0;
-    const mostra = (v) => _modoPizza === "pct" ? fmtPct(pct(v)) : fmtBRL2(v);
+    const mostra = (v) => _modoPizza === "pct" ? fmtPct(pct(v)) : fmtBRL3(v);
     const centro = {
       id: "centro",
       afterDraw(ch) {
@@ -3350,7 +3407,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         ctx.fillText("Total conclu\xEDdo", x, y - 10);
         ctx.fillStyle = texto;
         ctx.font = "700 17px Segoe UI, sans-serif";
-        ctx.fillText(fmtBRL2(total), x, y + 13);
+        ctx.fillText(fmtBRL3(total), x, y + 13);
         ctx.restore();
       }
     };
@@ -3398,7 +3455,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         c.fillStyle = ink.texto;
         c.font = "600 11px Segoe UI, sans-serif";
         c.textBaseline = "middle";
-        ch.getDatasetMeta(0).data.forEach((barra, i) => c.fillText(fmtBRL2(values[i]), barra.x + 8, barra.y));
+        ch.getDatasetMeta(0).data.forEach((barra, i) => c.fillText(fmtBRL3(values[i]), barra.x + 8, barra.y));
         c.restore();
       }
     };
@@ -3424,7 +3481,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx2) => ` ${fmtBRL2(ctx2.raw)}`
+              label: (ctx2) => ` ${fmtBRL3(ctx2.raw)}`
             }
           }
         },
@@ -3476,7 +3533,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx2) => ctx2.raw !== null ? ` ${ctx2.dataset.label}: ${fmtBRL2(ctx2.raw)}/dia` : ` ${ctx2.dataset.label}: sem dados`
+              label: (ctx2) => ctx2.raw !== null ? ` ${ctx2.dataset.label}: ${fmtBRL3(ctx2.raw)}/dia` : ` ${ctx2.dataset.label}: sem dados`
             }
           }
         },
@@ -3484,7 +3541,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
           x: { grid: { display: false }, border: { display: false } },
           y: {
             border: { display: false },
-            ticks: { callback: (v) => fmtBRL2(v), font: { size: 11 } },
+            ticks: { callback: (v) => fmtBRL3(v), font: { size: 11 } },
             grid: { color: ink.grid }
           }
         }
@@ -3503,11 +3560,11 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       return `
     <tr>
       <td><span class="dx-dot" style="background:${cor}"></span>${eq.nome}</td>
-      <td>${fmtBRL2(eq.total)}
+      <td>${fmtBRL3(eq.total)}
         <div class="dx-mini"><span style="width:${eq.total / maior * 100}%;background:linear-gradient(90deg,${comAlpha(cor, 0.5)},${cor})"></span></div>
       </td>
-      <td>${fmtBRL2(eq.media_mensal)}</td>
-      <td>${fmtBRL2(eq.media_dia)}</td>
+      <td>${fmtBRL3(eq.media_mensal)}</td>
+      <td>${fmtBRL3(eq.media_dia)}</td>
       <td>${eq.mes_pico}</td>
     </tr>`;
     }).join("");
@@ -4260,6 +4317,12 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     }
     return ok();
   }
+  var grupoDe = (a) => a.grupo_id ?? a.id;
+  var membrosGrupo = (a) => db.agendamentos.filter((x) => grupoDe(x) === grupoDe(a));
+  function valorDaEquipe(a, amb) {
+    if (amb.valor == null) return amb.valor;
+    return amb.valor / membrosGrupo(a).length;
+  }
   function equipesResumoMes({ query }) {
     var _a;
     const hoje = /* @__PURE__ */ new Date();
@@ -4275,7 +4338,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       const amb = db.ambientes.find((a) => a.id === ag.ambiente_id);
       if (!amb) continue;
       lookup[_a = ag.equipe_id] ?? (lookup[_a] = {});
-      lookup[ag.equipe_id][ag.status] = (lookup[ag.equipe_id][ag.status] || 0) + (amb.valor || 0);
+      lookup[ag.equipe_id][ag.status] = (lookup[ag.equipe_id][ag.status] || 0) + (valorDaEquipe(ag, amb) || 0);
     }
     return [200, equipes.map((eq) => {
       const t = lookup[eq.id] || {};
@@ -4450,6 +4513,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         id: a.id,
         ambiente_id: a.ambiente_id,
         equipe_id: a.equipe_id,
+        grupo_id: grupoDe(a),
         data_inicio: a.data_inicio,
         data_fim: a.data_fim,
         tipo: a.tipo,
@@ -4458,7 +4522,8 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         criado_em: a.criado_em,
         ambiente_nome: amb.nome,
         duracao_dias: amb.duracao_dias,
-        valor: amb.valor,
+        valor: valorDaEquipe(a, amb),
+        valor_total: amb.valor,
         cliente_id: amb.cliente_id,
         cliente_nome: cli.nome,
         equipe_nome: eq.nome,
@@ -4482,8 +4547,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     if (verificarConflito(equipeId, dataInicio, dataFim)) {
       return erro("Esta equipe j\xE1 possui agendamento nesse per\xEDodo.", 409);
     }
+    const novoId = proximoId("agendamentos");
     db.agendamentos.push({
-      id: proximoId("agendamentos"),
+      id: novoId,
+      grupo_id: novoId,
       ambiente_id: ambienteId,
       equipe_id: equipeId,
       data_inicio: dataInicio,
@@ -4557,14 +4624,62 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
     if (verificarConflito(equipeId, dataInicio, dataFim, params.id)) {
       return erro("Esta equipe j\xE1 possui agendamento nesse per\xEDodo.", 409);
     }
+    const outras = membrosGrupo(atual).filter((a) => a.id !== atual.id);
+    const extras = Array.isArray(body.equipes_extras) ? [...new Set(body.equipes_extras.map((n) => parseInt(n, 10)))].filter((n) => n && n !== equipeId) : outras.map((a) => a.equipe_id);
+    if (outras.some((a) => a.equipe_id === equipeId) && !Array.isArray(body.equipes_extras)) {
+      return erro("Esta equipe j\xE1 faz parte deste ambiente.", 409);
+    }
+    const mantidas = outras.filter((a) => extras.includes(a.equipe_id));
+    const removidas = outras.filter((a) => !extras.includes(a.equipe_id));
+    const novasEq = extras.filter((id) => !outras.some((a) => a.equipe_id === id));
+    const nomeEq = (id) => (db.equipes.find((e) => e.id === id) || {}).nome || "Equipe";
+    const checarEquipe = (eqId, ignorarId) => {
+      if (verificarConflito(eqId, dataInicio, dataFim, ignorarId)) {
+        return erro(`A equipe ${nomeEq(eqId)} j\xE1 possui agendamento nesse per\xEDodo.`, 409);
+      }
+      if (status === "Em andamento" && db.agendamentos.some((a) => a.equipe_id === eqId && a.status === "Em andamento" && a.id !== ignorarId)) {
+        return erro(`A equipe ${nomeEq(eqId)} j\xE1 possui um projeto Em andamento.`);
+      }
+      return null;
+    };
+    for (const m of mantidas) {
+      const e = checarEquipe(m.equipe_id, m.id);
+      if (e) return e;
+    }
+    for (const id of novasEq) {
+      if (!db.equipes.some((e2) => e2.id === id)) return erro("Equipe n\xE3o encontrada.", 404);
+      const e = checarEquipe(id, null);
+      if (e) return e;
+    }
+    const grupoId = grupoDe(atual);
     Object.assign(atual, {
       equipe_id: equipeId,
       data_inicio: dataInicio,
       data_fim: dataFim,
       status,
       tipo,
-      observacoes
+      observacoes,
+      grupo_id: grupoId
     });
+    for (const m of mantidas) {
+      Object.assign(m, { data_inicio: dataInicio, data_fim: dataFim, status, tipo, observacoes, grupo_id: grupoId });
+    }
+    const idsRemovidos = new Set(removidas.map((a) => a.id));
+    db.agendamentos = db.agendamentos.filter((a) => !idsRemovidos.has(a.id));
+    for (const id of novasEq) {
+      db.agendamentos.push({
+        id: proximoId("agendamentos"),
+        grupo_id: grupoId,
+        ambiente_id: ambienteId,
+        equipe_id: id,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        tipo,
+        status,
+        observacoes,
+        criado_em: agora()
+      });
+    }
     const amb = db.ambientes.find((a) => a.id === ambienteId);
     if (amb) {
       if (status === "Conclu\xEDdo") amb.status = "finalizado";
@@ -4577,7 +4692,10 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
   }
   function agendamentosExcluir({ params }) {
     const ag = db.agendamentos.find((a) => a.id === params.id);
-    db.agendamentos = db.agendamentos.filter((a) => a.id !== params.id);
+    if (ag) {
+      const grupo = grupoDe(ag);
+      db.agendamentos = db.agendamentos.filter((a) => grupoDe(a) !== grupo);
+    }
     if (ag) {
       const amb = db.ambientes.find((a) => a.id === ag.ambiente_id);
       if (amb) amb.status = "pendente";
@@ -4652,7 +4770,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
       if (!amb) continue;
       lookup[_a = a.equipe_id] ?? (lookup[_a] = {});
       const cel = (_b = lookup[a.equipe_id])[mes] ?? (_b[mes] = { valor: 0, dias: 0 });
-      cel.valor += amb.valor || 0;
+      cel.valor += valorDaEquipe(a, amb) || 0;
       cel.dias += amb.duracao_dias || 0;
     }
     const meses = [];
@@ -4726,7 +4844,7 @@ body.dark .save-status--erro, body.dark .save-status-alerta { color: #ff8080; }
         equipe_id: a.equipe_id,
         ambiente: amb.nome,
         cliente: cli ? cli.nome : "",
-        valor: amb.valor || 0,
+        valor: valorDaEquipe(a, amb) || 0,
         finalizado_em: dia
       });
     }

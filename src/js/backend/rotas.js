@@ -58,6 +58,18 @@ function equipesAtualizar({ params, body }) {
   return ok();
 }
 
+// ── Divisão de ambiente entre equipes ─────────────────────────────
+// Cada equipe tem a sua própria linha em db.agendamentos; as cópias de um mesmo
+// ambiente compartilham o mesmo grupo_id (sem grupo_id = agendamento só de uma equipe).
+const grupoDe = (a) => a.grupo_id ?? a.id;
+const membrosGrupo = (a) => db.agendamentos.filter(x => grupoDe(x) === grupoDe(a));
+
+/** Parte do valor do ambiente que cabe a esta equipe (divisão igual entre as equipes do grupo). */
+function valorDaEquipe(a, amb) {
+  if (amb.valor == null) return amb.valor;
+  return amb.valor / membrosGrupo(a).length;
+}
+
 function equipesResumoMes({ query }) {
   const hoje = new Date();
   const ano = parseInt(query.ano ?? hoje.getFullYear(), 10);
@@ -73,7 +85,7 @@ function equipesResumoMes({ query }) {
     const amb = db.ambientes.find(a => a.id === ag.ambiente_id);
     if (!amb) continue;
     lookup[ag.equipe_id] ??= {};
-    lookup[ag.equipe_id][ag.status] = (lookup[ag.equipe_id][ag.status] || 0) + (amb.valor || 0);
+    lookup[ag.equipe_id][ag.status] = (lookup[ag.equipe_id][ag.status] || 0) + (valorDaEquipe(ag, amb) || 0);
   }
   return [200, equipes.map(eq => {
     const t = lookup[eq.id] || {};
@@ -243,10 +255,10 @@ function agendamentosListar({ query }) {
     const eq  = db.equipes.find(e => e.id === a.equipe_id);
     if (!amb || !cli || !eq) continue;                       // equivalente aos JOINs
     out.push({
-      id: a.id, ambiente_id: a.ambiente_id, equipe_id: a.equipe_id,
+      id: a.id, ambiente_id: a.ambiente_id, equipe_id: a.equipe_id, grupo_id: grupoDe(a),
       data_inicio: a.data_inicio, data_fim: a.data_fim, tipo: a.tipo, status: a.status,
       observacoes: a.observacoes, criado_em: a.criado_em,
-      ambiente_nome: amb.nome, duracao_dias: amb.duracao_dias, valor: amb.valor,
+      ambiente_nome: amb.nome, duracao_dias: amb.duracao_dias, valor: valorDaEquipe(a, amb), valor_total: amb.valor,
       cliente_id: amb.cliente_id, cliente_nome: cli.nome,
       equipe_nome: eq.nome, equipe_cor: eq.cor,
     });
@@ -273,8 +285,9 @@ function agendamentosCriar({ body }) {
     return erro('Esta equipe já possui agendamento nesse período.', 409);
   }
 
+  const novoId = proximoId('agendamentos');
   db.agendamentos.push({
-    id: proximoId('agendamentos'), ambiente_id: ambienteId, equipe_id: equipeId,
+    id: novoId, grupo_id: novoId, ambiente_id: ambienteId, equipe_id: equipeId,
     data_inicio: dataInicio, data_fim: dataFim, tipo, status: 'Agendado',
     observacoes, criado_em: agora(),
   });
@@ -356,10 +369,52 @@ function agendamentosAtualizar({ params, body }) {
     return erro('Esta equipe já possui agendamento nesse período.', 409);
   }
 
+  // Equipes que dividem o ambiente (cópias com o mesmo grupo_id)
+  const outras = membrosGrupo(atual).filter(a => a.id !== atual.id);
+  const extras = Array.isArray(body.equipes_extras)
+    ? [...new Set(body.equipes_extras.map(n => parseInt(n, 10)))].filter(n => n && n !== equipeId)
+    : outras.map(a => a.equipe_id);
+  if (outras.some(a => a.equipe_id === equipeId) && !Array.isArray(body.equipes_extras)) {
+    return erro('Esta equipe já faz parte deste ambiente.', 409);
+  }
+  const mantidas  = outras.filter(a => extras.includes(a.equipe_id));
+  const removidas = outras.filter(a => !extras.includes(a.equipe_id));
+  const novasEq   = extras.filter(id => !outras.some(a => a.equipe_id === id));
+
+  const nomeEq = (id) => (db.equipes.find(e => e.id === id) || {}).nome || 'Equipe';
+  const checarEquipe = (eqId, ignorarId) => {
+    if (verificarConflito(eqId, dataInicio, dataFim, ignorarId)) {
+      return erro(`A equipe ${nomeEq(eqId)} já possui agendamento nesse período.`, 409);
+    }
+    if (status === 'Em andamento' && db.agendamentos.some(a =>
+      a.equipe_id === eqId && a.status === 'Em andamento' && a.id !== ignorarId)) {
+      return erro(`A equipe ${nomeEq(eqId)} já possui um projeto Em andamento.`);
+    }
+    return null;
+  };
+  for (const m of mantidas) { const e = checarEquipe(m.equipe_id, m.id); if (e) return e; }
+  for (const id of novasEq) {
+    if (!db.equipes.some(e => e.id === id)) return erro('Equipe não encontrada.', 404);
+    const e = checarEquipe(id, null); if (e) return e;
+  }
+
+  const grupoId = grupoDe(atual);
   Object.assign(atual, {
     equipe_id: equipeId, data_inicio: dataInicio, data_fim: dataFim,
-    status, tipo, observacoes,
+    status, tipo, observacoes, grupo_id: grupoId,
   });
+  // As cópias acompanham sempre o agendamento editado
+  for (const m of mantidas) {
+    Object.assign(m, { data_inicio: dataInicio, data_fim: dataFim, status, tipo, observacoes, grupo_id: grupoId });
+  }
+  const idsRemovidos = new Set(removidas.map(a => a.id));
+  db.agendamentos = db.agendamentos.filter(a => !idsRemovidos.has(a.id));
+  for (const id of novasEq) {
+    db.agendamentos.push({
+      id: proximoId('agendamentos'), grupo_id: grupoId, ambiente_id: ambienteId, equipe_id: id,
+      data_inicio: dataInicio, data_fim: dataFim, tipo, status, observacoes, criado_em: agora(),
+    });
+  }
 
   const amb = db.ambientes.find(a => a.id === ambienteId);
   if (amb) {
@@ -374,7 +429,10 @@ function agendamentosAtualizar({ params, body }) {
 
 function agendamentosExcluir({ params }) {
   const ag = db.agendamentos.find(a => a.id === params.id);
-  db.agendamentos = db.agendamentos.filter(a => a.id !== params.id);
+  if (ag) {
+    const grupo = grupoDe(ag);
+    db.agendamentos = db.agendamentos.filter(a => grupoDe(a) !== grupo);   // todas as equipes do ambiente
+  }
   if (ag) {
     const amb = db.ambientes.find(a => a.id === ag.ambiente_id);
     if (amb) amb.status = 'pendente';
@@ -457,7 +515,7 @@ function relatoriosDashboard({ query }) {
     if (!amb) continue;
     lookup[a.equipe_id] ??= {};
     const cel = (lookup[a.equipe_id][mes] ??= { valor: 0, dias: 0 });
-    cel.valor += amb.valor || 0;
+    cel.valor += valorDaEquipe(a, amb) || 0;
     cel.dias  += amb.duracao_dias || 0;
   }
 
@@ -530,7 +588,7 @@ function concluidosPorMesPagamento() {
     const cli = db.clientes.find(c => c.id === amb.cliente_id);
     (mapa[chaveMes(y, m)] ??= []).push({
       agendamento_id: a.id, equipe_id: a.equipe_id, ambiente: amb.nome,
-      cliente: cli ? cli.nome : '', valor: amb.valor || 0, finalizado_em: dia,
+      cliente: cli ? cli.nome : '', valor: valorDaEquipe(a, amb) || 0, finalizado_em: dia,
     });
   }
   return mapa;
